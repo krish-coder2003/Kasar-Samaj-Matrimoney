@@ -15,11 +15,54 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Admin User
+        $admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+            'is_premium' => true,
+        ]);
+        $admin->profile()->create([
+            'gender' => 'Male',
+            'dob' => '1990-01-01',
+            'city' => 'Nanded',
+            'occupation' => 'Admin',
+            'phone_number' => '1234567890',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // 2. Krishna (Test User)
+        $krish = User::create([
+            'name' => 'KRISHNA EKNATHRAC SHRANGARE',
+            'email' => 'krishnashrangare@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'user',
+            'is_premium' => true,
+        ]);
+        $krish->profile()->create([
+            'gender' => 'Male',
+            'dob' => '2003-05-15',
+            'city' => 'Nanded',
+            'occupation' => 'Software Developer',
+            'phone_number' => '9876543210',
+            'marital_status' => 'Never Married',
+        ]);
+
+        // 3. Shweta (Test User)
+        $shweta = User::create([
+            'name' => 'Shweta',
+            'email' => 'sheweta@gmail.com',
+            'password' => bcrypt('password'),
+            'role' => 'user',
+            'is_premium' => true,
+        ]);
+        $shweta->profile()->create([
+            'gender' => 'Female',
+            'dob' => '2000-10-20',
+            'city' => 'Pune',
+            'occupation' => 'Designer',
+            'phone_number' => '1122334455',
+            'marital_status' => 'Never Married',
         ]);
     }
 }
