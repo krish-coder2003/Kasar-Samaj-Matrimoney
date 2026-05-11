@@ -23,7 +23,7 @@ class ChatController extends Controller
         $currentUser->update(['last_seen_at' => now()]);
 
         // Fetch contacts (Accepted interests)
-        $interests = Interest::where(function($q) use ($currentUser) {
+        $interests = Interest::where(function ($q) use ($currentUser) {
             $q->where('sender_id', $currentUser->id)->orWhere('receiver_id', $currentUser->id);
         })->where('status', 'accepted')->get();
 
@@ -42,10 +42,10 @@ class ChatController extends Controller
                 return redirect()->route('chat.index')->with('error', 'Connection not accepted yet.');
             }
             $activeChatUser = User::with('profile')->findOrFail($userId);
-            
-            $messages = Message::where(function($q) use ($currentUser, $userId) {
+
+            $messages = Message::where(function ($q) use ($currentUser, $userId) {
                 $q->where('sender_id', $currentUser->id)->where('receiver_id', $userId);
-            })->orWhere(function($q) use ($currentUser, $userId) {
+            })->orWhere(function ($q) use ($currentUser, $userId) {
                 $q->where('sender_id', $userId)->where('receiver_id', $currentUser->id);
             })->orderBy('created_at', 'asc')->get();
 
@@ -59,7 +59,7 @@ class ChatController extends Controller
     public function sendMessage(Request $request, $userId)
     {
         $currentUser = Auth::user();
-        
+
         if (!$currentUser->is_premium) {
             return response()->json(['success' => false, 'message' => 'Premium required.']);
         }
@@ -98,9 +98,9 @@ class ChatController extends Controller
         $currentUser = Auth::user();
         $currentUser->update(['last_seen_at' => now()]);
 
-        $messages = Message::where(function($q) use ($currentUser, $userId) {
+        $messages = Message::where(function ($q) use ($currentUser, $userId) {
             $q->where('sender_id', $currentUser->id)->where('receiver_id', $userId);
-        })->orWhere(function($q) use ($currentUser, $userId) {
+        })->orWhere(function ($q) use ($currentUser, $userId) {
             $q->where('sender_id', $userId)->where('receiver_id', $currentUser->id);
         })->orderBy('created_at', 'asc')->get();
 
