@@ -607,7 +607,7 @@ footer {
     padding: 1rem 2rem;
     border-radius: 10px;
     color: white;
-    z-index: 3000;
+    z-index: 100001;
     display: none;
     animation: fadeIn 0.3s;
     transition: opacity 0.5s ease;
@@ -1245,7 +1245,9 @@ body {
     flex-direction: column;
     position: relative;
     width: 100%;
+    min-height: 100vh;
     background-color: #fdfaf5; /* Base page color */
+    background-attachment: fixed;
 }
 
 /* Ensure the main content takes up remaining space to push footer down */
@@ -1261,7 +1263,7 @@ footer {
     background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 40%),
                 linear-gradient(135deg, #720917 0%, #2d0a0a 100%);
     color: #fff;
-    padding: 3rem 5% 0;
+    padding: 3rem 5%;
     margin-top: auto; /* Sticky footer magic */
     border-top: 3px solid #D4AF37;
     position: relative;
@@ -1294,8 +1296,8 @@ footer::after {
 
 .footer-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
     max-width: 1300px;
     margin: 0 auto;
     position: relative;

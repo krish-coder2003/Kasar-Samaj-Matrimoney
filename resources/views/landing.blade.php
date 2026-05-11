@@ -950,13 +950,20 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                         },
                         body: JSON.stringify({ email })
                     });
                     const data = await response.json();
                     
                     if (response.ok) {
+                        if (isLoginMode && data.is_new) {
+                            showNotification('Account not found. Please register first.', 'error');
+                            actionBtn.disabled = false;
+                            actionBtn.innerText = 'Log In';
+                            return;
+                        }
+
                         showNotification(data.message, 'success');
                         document.getElementById('otp-entry-section').style.display = "block";
                         actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
@@ -1010,6 +1017,10 @@
                         setTimeout(() => window.location.href = data.redirect, 800);
                     } else {
                         showNotification(data.message, 'error');
+                        if (isLoginMode && data.message.toLowerCase().includes('name is required')) {
+                            showNotification('Account not found. Please register first.', 'error');
+                            toggleLoginMode();
+                        }
                         actionBtn.disabled = false;
                         actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
                     }

@@ -51,7 +51,7 @@ class AuthService
 
         if (!$user) {
             if (!$name) {
-                return ['success' => false, 'message' => 'Name is required for registration.'];
+                return ['success' => false, 'message' => 'Account not found. Please register first.'];
             }
             $user = User::create([
                 'email' => $email,
