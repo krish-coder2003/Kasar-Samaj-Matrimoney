@@ -11,16 +11,16 @@ class InterestController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         $receivedInterests = Interest::where('receiver_id', $user->id)
-                                    ->with('sender.profile')
-                                    ->latest()
-                                    ->get();
+            ->with('sender.profile')
+            ->latest()
+            ->get();
 
         $sentInterests = Interest::where('sender_id', $user->id)
-                                 ->with('receiver.profile')
-                                 ->latest()
-                                 ->get();
+            ->with('receiver.profile')
+            ->latest()
+            ->get();
 
         return view('profile.interests', compact('receivedInterests', 'sentInterests'));
     }
@@ -32,7 +32,7 @@ class InterestController extends Controller
         }
 
         $request->validate(['status' => 'required|in:accepted,declined']);
-        
+
         $interest->update(['status' => $request->status]);
 
         return back()->with('success', 'Interest status updated!');
@@ -53,8 +53,8 @@ class InterestController extends Controller
 
         // Check if I already sent an interest to them
         $existing = Interest::where('sender_id', $senderId)
-                            ->where('receiver_id', $receiverId)
-                            ->first();
+            ->where('receiver_id', $receiverId)
+            ->first();
 
         if ($existing) {
             return response()->json(['success' => false, 'message' => 'Interest already sent to this profile.']);
