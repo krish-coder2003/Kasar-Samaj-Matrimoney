@@ -34,7 +34,7 @@
         
         .visitors-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(550px, 1fr)); 
             gap: 2.5rem; 
             position: relative;
             z-index: 5;
@@ -68,22 +68,31 @@
             box-shadow: 0 12px 25px rgba(0,0,0,0.12); 
             transition: 0.4s;
         }
-        .user-info { flex-grow: 1; }
+        .user-info { flex-grow: 1; min-width: 0; }
         .user-info h3 { 
             font-family: 'Playfair Display', serif; 
             color: var(--primary); 
-            font-size: 1.8rem; 
+            font-size: 1.4rem; 
             margin-bottom: 0.4rem; 
             font-weight: 800;
+            line-height: 1.2;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        @media (min-width: 1025px) {
+            .user-info h3 { white-space: nowrap; }
         }
         .user-info p { 
             color: #555; 
-            font-size: 1rem; 
-            margin-bottom: 0.8rem; 
+            font-size: 0.95rem; 
+            margin-bottom: 0.6rem; 
             display: flex; 
             align-items: center; 
             gap: 8px; 
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .time-badge { 
             display: inline-flex; 
@@ -163,6 +172,21 @@
             gap: 10px;
             box-shadow: 0 10px 25px rgba(128,0,0,0.25); 
             border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        @media (max-width: 1150px) {
+            .visitors-header h1 { font-size: 2.5rem; }
+            .visitors-grid { grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 1.5rem; }
+            .user-photo { width: 90px; height: 90px; margin-right: 1.2rem; }
+            .user-info h3 { font-size: 1.3rem; }
+        }
+
+        @media (max-width: 768px) {
+            .visitors-container { padding-top: 100px; }
+            .visitors-header { margin-bottom: 3rem; }
+            .visitors-header h1 { font-size: 2rem; }
+            .visitors-grid { grid-template-columns: 1fr; }
+            .visitor-card { padding: 1.2rem; border-radius: 20px; }
         }
     </style>
 @endsection

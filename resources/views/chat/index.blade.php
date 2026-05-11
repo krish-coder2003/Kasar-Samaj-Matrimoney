@@ -154,6 +154,12 @@
             .chat-container {
                 margin-top: 70px;
                 height: calc(100vh - 70px);
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                margin-top: 0;
             }
             .chat-sidebar {
                 width: 100%;
@@ -180,14 +186,24 @@
             }
             .mobile-back:hover { background: #fff5f5; transform: translateX(-3px); }
             
-            .chat-header { padding: 1rem 1.5rem; }
-            .messages-area { padding: 1.5rem; }
-            .chat-input-area { padding: 1rem !important; }
+            .chat-header { padding: 0.8rem 1rem; }
+            .messages-area { padding: 1rem; }
+            .chat-input-area { padding: 0.6rem !important; }
+            
+            body.keyboard-open header, 
+            body.keyboard-open .recovery-banner { 
+                display: none !important; 
+            }
+            
+            body.keyboard-open .chat-container {
+                top: 0 !important;
+                height: 100dvh !important;
+            }
             .sidebar-header { padding: 1.5rem; }
             .contact-item { padding: 1.2rem 1.5rem; }
             
             .chat-input-area .input-wrapper { gap: 0.5rem !important; }
-            .chat-input { padding: 0.8rem 1.2rem; font-size: 0.9rem; }
+            .chat-input { padding: 0.8rem 1.2rem; font-size: 1rem; }
             .send-btn {
                 width: 45px;
                 height: 45px;
@@ -303,6 +319,13 @@
     <script>
         const messagesArea = document.getElementById('messages-area');
         const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
+                }, 300);
+            });
+        }
         const fileInput = document.getElementById('file-input');
         const activeUserId = {{ $activeChatUser ? $activeChatUser->id : 'null' }};
         const filePreview = document.getElementById('file-preview');
@@ -378,6 +401,7 @@
             // --- OPTIMISTIC UPDATE ---
             appendOptimisticMessage(message, file);
             chatInput.value = '';
+            chatInput.focus();
             const pendingFile = file; // Keep reference for clearing
             clearFile();
 
@@ -473,6 +497,26 @@
         // Polling for real-time feel
         if (activeUserId) {
             setInterval(fetchMessages, 3000);
+        }
+
+        // Handle mobile keyboard
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                const container = document.querySelector('.chat-container');
+                if (window.innerWidth <= 992) {
+                    const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.8;
+                    if (isKeyboardOpen) {
+                        document.body.classList.add('keyboard-open');
+                        container.style.top = '0px';
+                        container.style.height = `${window.visualViewport.height}px`;
+                    } else {
+                        document.body.classList.remove('keyboard-open');
+                        container.style.top = '70px';
+                        container.style.height = `${window.visualViewport.height - 70}px`;
+                    }
+                    if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
+                }
+            });
         }
     </script>
 
