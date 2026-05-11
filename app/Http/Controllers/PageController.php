@@ -36,7 +36,8 @@ class PageController extends Controller
     public function chatbotAnswer(Request $request)
     {
         $query = strtolower($request->query('q', ''));
-        if (empty($query)) return response()->json(['answer' => 'How can I help you today?']);
+        if (empty($query))
+            return response()->json(['answer' => 'How can I help you today?']);
 
         $faqs = \App\Models\Faq::all();
         $bestMatch = null;
@@ -45,7 +46,7 @@ class PageController extends Controller
         foreach ($faqs as $faq) {
             $score = 0;
             $question = strtolower($faq->question);
-            
+
             // Simple keyword matching
             $words = explode(' ', $query);
             foreach ($words as $word) {
