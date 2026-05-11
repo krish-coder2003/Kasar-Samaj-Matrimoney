@@ -1232,21 +1232,37 @@ header.scrolled .nav-links a.active {
 }
 
 /* Fix for horizontal scroll issues */
+/* Fix for horizontal scroll issues and Sticky Footer */
 html, body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
     overflow-x: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
     position: relative;
     width: 100%;
+    background-color: #fdfaf5; /* Base page color */
+}
+
+/* Ensure the main content takes up remaining space to push footer down */
+main, .main-content, .container {
+    flex: 1 0 auto;
 }
 
 /* Mobile Menu Script - Injected via CSS because we don't have a shared JS file */
 /* This is a hacky way to suggest the JS needed */
 /* Unified Premium Footer Styles - Modernized & Beautiful */
 footer {
+    background: #2d0a0a; /* Solid fallback for the very bottom */
     background: radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 40%),
                 linear-gradient(135deg, #720917 0%, #2d0a0a 100%);
     color: #fff;
-    padding: 3rem 5% 1.5rem;
-    margin-top: 0;
+    padding: 3rem 5% 0;
+    margin-top: auto; /* Sticky footer magic */
     border-top: 3px solid #D4AF37;
     position: relative;
     overflow: hidden;
@@ -1368,8 +1384,7 @@ footer::after {
 
 .footer-bottom {
     text-align: center;
-    margin-top: 2rem;
-    padding: 1.5rem 0;
+    padding: 3rem 0 2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
     z-index: 2;
@@ -1386,28 +1401,28 @@ footer::after {
 }
 
 @media (max-width: 768px) {
-    footer { padding: 1.5rem 12px 1rem !important; text-align: left !important; }
+    footer { padding: 2rem 15px 4rem !important; text-align: left !important; }
     .footer-grid { 
-        grid-template-columns: repeat(2, 1fr) !important; 
-        gap: 1.2rem 1rem !important; 
+        grid-template-columns: 1fr !important; 
+        gap: 2rem !important; 
     }
-    .footer-col h4 { font-size: 0.95rem !important; margin-bottom: 0.6rem !important; gap: 8px !important; display: flex; align-items: center; }
-    .footer-col h4 img { height: 28px !important; width: 28px !important; }
-    .footer-col h4::after { display: none !important; }
-    .footer-col p { font-size: 0.75rem !important; line-height: 1.3 !important; margin-bottom: 0; }
-    .footer-col ul li { margin-bottom: 0.3rem !important; list-style: none; }
-    .footer-col ul li a { font-size: 0.8rem !important; display: flex; align-items: center; gap: 5px; }
-    .footer-col ul li a i { font-size: 0.6rem !important; }
-    .footer-col .contact-item { justify-content: flex-start !important; margin-bottom: 0.6rem !important; gap: 8px !important; }
-    .footer-col .contact-item i { width: 24px; height: 24px; min-width: 24px; font-size: 0.7rem; border-radius: 6px; }
-    .footer-col .contact-item div p { font-size: 0.75rem !important; line-height: 1.2; }
-    .footer-col .contact-item div p:first-child { font-size: 0.65rem !important; opacity: 0.7; }
+    .footer-col h4 { font-size: 1.1rem !important; margin-bottom: 1rem !important; gap: 10px !important; display: flex; align-items: center; }
+    .footer-col h4 img { height: 35px !important; width: 35px !important; }
+    .footer-col h4::after { display: block !important; width: 30px; height: 2px; background: var(--secondary); margin-top: 10px; }
+    .footer-col p { font-size: 0.9rem !important; line-height: 1.6 !important; margin-bottom: 0.8rem !important; }
+    .footer-col ul li { margin-bottom: 0.6rem !important; list-style: none; }
+    .footer-col ul li a { font-size: 0.95rem !important; display: flex; align-items: center; gap: 10px; }
+    .footer-col ul li a i { font-size: 0.7rem !important; }
+    .footer-col .contact-item { justify-content: flex-start !important; margin-bottom: 1rem !important; gap: 12px !important; }
+    .footer-col .contact-item i { width: 32px; height: 32px; min-width: 32px; font-size: 0.9rem; border-radius: 8px; }
+    .footer-col .contact-item div p { font-size: 0.9rem !important; line-height: 1.4; }
+    .footer-col .contact-item div p:first-child { font-size: 0.75rem !important; opacity: 0.7; }
     
-    .dev-card { padding: 0.6rem !important; margin-top: 0.8rem !important; border-radius: 10px !important; }
-    .dev-card p { font-size: 0.7rem !important; }
+    .dev-card { padding: 1rem !important; margin-top: 1.5rem !important; border-radius: 15px !important; }
+    .dev-card p { font-size: 0.8rem !important; }
     
-    .footer-bottom { margin-top: 1rem !important; padding: 0.8rem 0 !important; border-top: 1px solid rgba(255,255,255,0.05); }
-    .footer-bottom p { font-size: 0.7rem !important; opacity: 0.4; line-height: 1.4; }
+    .footer-bottom { margin-top: 2rem !important; padding: 1.5rem 0 4rem !important; border-top: 1px solid rgba(255,255,255,0.05); }
+    .footer-bottom p { font-size: 0.85rem !important; opacity: 0.7; line-height: 1.5; }
 }
 
 /* --- Monetization Features: Verified Badge & Spotlight --- */
