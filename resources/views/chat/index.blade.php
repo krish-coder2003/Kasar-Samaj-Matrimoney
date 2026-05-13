@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/js/app.js'])
     <style>
         body { background: #fdfaf5 !important; overflow: hidden; }
         .chat-container {
@@ -328,11 +329,13 @@
         }
         const fileInput = document.getElementById('file-input');
         const activeUserId = {{ $activeChatUser ? $activeChatUser->id : 'null' }};
+        const currentUserId = {{ Auth::id() }};
         const filePreview = document.getElementById('file-preview');
         const previewImg = document.getElementById('preview-img');
         const previewFileName = document.getElementById('preview-file-name');
 
-        fileInput.onchange = function() {
+        if (fileInput) {
+            fileInput.onchange = function() {
             const file = fileInput.files[0];
             if (file) {
                 filePreview.style.display = 'flex';
@@ -349,6 +352,7 @@
                 }
             }
         };
+    }
 
         function clearFile() {
             fileInput.value = '';
@@ -494,9 +498,83 @@
             }
         }
 
-        // Polling for real-time feel
-        if (activeUserId) {
-            setInterval(fetchMessages, 3000);
+        // Real-time listener using WebSockets
+        function initEcho() {
+            if (typeof window.Echo !== 'undefined' && currentUserId) {
+                console.log('Attempting to subscribe to channel: chat.' + currentUserId);
+                
+                window.Echo.private(`chat.${currentUserId}`)
+                    .subscribed(() => {
+                        console.log('Successfully subscribed to private channel: chat.' + currentUserId);
+                    })
+                    .listen('.message.sent', (e) => {
+                        console.log('PRIVATE event received:', e);
+                        handleIncomingMessage(e);
+                    })
+                    .error((error) => {
+                        console.error('Echo subscription error:', error);
+                    });
+
+                // Public debug listener
+                window.Echo.channel('chat-debug')
+                    .listen('.message.sent', (e) => {
+                        console.log('PUBLIC event received:', e);
+                        if (e.message.receiver_id == currentUserId) {
+                            handleIncomingMessage(e);
+                        }
+                    });
+
+                function handleIncomingMessage(e) {
+                    console.log('Processing incoming message:', e);
+                    // If we are currently chatting with the sender, show the message
+                    if (activeUserId && e.message.sender_id == activeUserId) {
+                        appendReceivedMessage(e.message);
+                        markAsRead(e.message.id);
+                    } else {
+                        // Update sidebar notification
+                        updateSidebarNotification(e.message.sender_id);
+                    }
+                }
+
+                // RAW DEBUGGER: Log everything from the connection
+                if (window.Echo.connector.pusher) {
+                    window.Echo.connector.pusher.connection.bind('message', (payload) => {
+                        console.log('RAW WEBSOCKET MESSAGE:', payload);
+                    });
+                }
+            } else {
+                // Wait for Echo to be ready
+                setTimeout(initEcho, 500);
+            }
+        }
+
+        initEcho();
+
+        function appendReceivedMessage(msg) {
+            const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const html = `
+                <div class="message received">
+                    ${msg.message ? `<div>${msg.message}</div>` : ''}
+                    ${msg.file_path ? (
+                        msg.file_type === 'image' 
+                        ? `<img src="/storage/${msg.file_path}" class="message-file" onclick="window.open(this.src)">`
+                        : `<a href="/storage/${msg.file_path}" target="_blank" class="message-file-link">📄 View PDF Document</a>`
+                    ) : ''}
+                    <div style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                        ${time}
+                    </div>
+                </div>
+            `;
+            messagesArea.insertAdjacentHTML('beforeend', html);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        async function markAsRead(messageId) {
+            // Optional: send request to mark as read
+        }
+
+        function updateSidebarNotification(senderId) {
+            // Optional: highlight contact in sidebar
         }
 
         // Handle mobile keyboard

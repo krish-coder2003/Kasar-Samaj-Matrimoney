@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     
     // Chat Routes
     Route::get('/chat/{user?}', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{user}/fetch', [\App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('chat.fetch');
     Route::post('/chat/{user}/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
     // Account Deletion
     Route::post('/profile/delete-request', [\App\Http\Controllers\AccountDeletionController::class, 'requestDeletion'])->name('profile.delete.request');

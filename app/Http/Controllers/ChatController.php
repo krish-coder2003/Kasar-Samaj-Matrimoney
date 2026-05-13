@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Message;
 use App\Models\Interest;
+use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -89,6 +90,20 @@ class ChatController extends Controller
             'file_path' => $filePath,
             'file_type' => $fileType
         ]);
+
+        try {
+            // Diagnostic: Check if port 8080 is reachable
+            $fp = @fsockopen('127.0.0.1', 8080, $errno, $errstr, 1);
+            if (!$fp) {
+                \Illuminate\Support\Facades\Log::warning("Diagnostic: Cannot reach Reverb port 8080. Error: $errstr");
+            } else {
+                fclose($fp);
+            }
+
+            broadcast(new MessageSent($message));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Broadcasting failed: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'message' => $message]);
     }
