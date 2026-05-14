@@ -164,18 +164,12 @@
             <a href="{{ route('home') }}">
                 <i class="fas fa-globe"></i> Back to Website
             </a>
-            <!-- Mobile-only logout link -->
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="mobile-only mobile-logout">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form-admin').submit();" style="color: #ff7675; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
+            <form id="logout-form-admin" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
         </div>
 
-        <div class="sidebar-footer">
-            <button onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="btn-logout-sidebar">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
-        </div>
     </div>
 
     <div class="main-content">

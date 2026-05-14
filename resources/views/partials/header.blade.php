@@ -1,4 +1,4 @@
-<header id="main-header" class="{{ (!request()->routeIs('home') || Auth::check()) ? 'scrolled' : '' }}" data-auth="{{ Auth::check() ? 'true' : 'false' }}">
+<header id="main-header" class="{{ (request()->routeIs('home') && !Auth::check()) ? '' : 'scrolled' }}" data-auth="{{ Auth::check() ? 'true' : 'false' }}">
     <a href="{{ route('home') }}" class="logo">
         <img src="/images/logo-icon.png" alt="Kasar Samaj Logo">
         <div class="logo-text">

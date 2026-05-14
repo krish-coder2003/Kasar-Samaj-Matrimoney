@@ -1358,6 +1358,16 @@ footer::after {
     display: flex;
     gap: 15px;
     margin-bottom: 0.8rem;
+    transition: all 0.3s ease;
+    padding: 8px;
+    margin-left: -8px;
+    border-radius: 12px;
+    text-decoration: none !important;
+}
+
+.footer-col .contact-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    transform: translateX(5px);
 }
 
 .footer-col .contact-item i {
@@ -1372,6 +1382,13 @@ footer::after {
     color: var(--secondary);
     font-size: 1rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.footer-col .contact-item:hover i {
+    background: var(--secondary);
+    color: #fff;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
 }
 
 .dev-card {
