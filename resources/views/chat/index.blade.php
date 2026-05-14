@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/js/app.js'])
+    
+    <!-- Hotwire Turbo -->
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+
     <style>
         body { background: #fdfaf5 !important; overflow: hidden; }
         .chat-container {
@@ -43,8 +47,23 @@
             border-bottom: 1px solid #fafafa;
             text-decoration: none;
             color: inherit;
+            position: relative;
         }
         .contact-item:hover, .contact-item.active { background: #fdfaf5; }
+        .contact-item.active { border-left: 4px solid var(--primary); }
+        .contact-item.has-new-msg::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: #e74c3c;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+        
         .contact-photo {
             width: 50px;
             height: 50px;
@@ -97,7 +116,10 @@
             border-radius: 20px;
             font-size: 0.95rem;
             position: relative;
+            animation: fadeIn 0.3s ease;
         }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .message.sent {
             align-self: flex-end;
             background: var(--primary);
@@ -118,6 +140,7 @@
             border-radius: 10px;
             margin-top: 0.5rem;
             display: block;
+            cursor: pointer;
         }
         .message-file-link {
             display: block;
@@ -142,12 +165,17 @@
             border: 1px solid #eee;
             border-radius: 30px;
             background: #f9f9f9;
+            outline: none;
         }
+        .chat-input:focus { border-color: var(--primary); background: white; }
+        
         .file-label {
             cursor: pointer;
             color: var(--primary);
             font-size: 1.5rem;
+            transition: 0.3s;
         }
+        .file-label:hover { transform: scale(1.1); }
         #file-input { display: none; }
 
         /* Mobile Responsiveness */
@@ -157,10 +185,7 @@
                 height: calc(100vh - 70px);
                 position: fixed;
                 top: 70px;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                margin-top: 0;
+                left: 0; right: 0; bottom: 0;
             }
             .chat-sidebar {
                 width: 100%;
@@ -175,54 +200,18 @@
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
-                width: 40px;
-                height: 40px;
+                width: 40px; height: 40px;
                 background: #fdfaf5;
                 border-radius: 50%;
                 color: var(--primary);
                 text-decoration: none;
                 margin-right: 1rem;
-                font-size: 1.1rem;
-                transition: 0.3s;
             }
-            .mobile-back:hover { background: #fff5f5; transform: translateX(-3px); }
-            
-            .chat-header { padding: 0.8rem 1rem; }
-            .messages-area { padding: 1rem; }
-            .chat-input-area { padding: 0.6rem !important; }
-            
-            body.keyboard-open header, 
-            body.keyboard-open .recovery-banner { 
-                display: none !important; 
-            }
-            
-            body.keyboard-open .chat-container {
-                top: 0 !important;
-                height: 100dvh !important;
-            }
-            .sidebar-header { padding: 1.5rem; }
-            .contact-item { padding: 1.2rem 1.5rem; }
-            
-            .chat-input-area .input-wrapper { gap: 0.5rem !important; }
-            .chat-input { padding: 0.8rem 1.2rem; font-size: 1rem; }
-            .send-btn {
-                width: 45px;
-                height: 45px;
-                padding: 0 !important;
-                border-radius: 50% !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-            .send-btn span { display: none; }
-            .send-btn i { display: block !important; font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
     @include('partials.recovery-banner')
-
     @include('partials.header')
 
     <div class="chat-container">
@@ -231,9 +220,11 @@
             <div class="sidebar-header">
                 <h3 style="color: var(--primary);">My Messages</h3>
             </div>
-            <div class="contact-list">
+            <div class="contact-list" id="contact-list">
                 @foreach($contacts as $contact)
-                    <a href="{{ route('chat.index', $contact->id) }}" class="contact-item {{ $activeChatUser && $activeChatUser->id == $contact->id ? 'active' : '' }}">
+                    <a href="{{ route('chat.index', $contact->id) }}" 
+                       class="contact-item {{ $activeChatUser && $activeChatUser->id == $contact->id ? 'active' : '' }}"
+                       data-contact-id="{{ $contact->id }}">
                         <div class="contact-photo" style="background-image: url('{{ $contact->profile->photo1 ? asset('storage/'.$contact->profile->photo1) : 'https://ui-avatars.com/api/?name='.urlencode($contact->name) }}');">
                             <div class="online-dot {{ $contact->isOnline() ? 'active' : '' }}"></div>
                         </div>
@@ -268,13 +259,13 @@
 
                 <div class="messages-area" id="messages-area">
                     @foreach($messages as $msg)
-                        <div class="message {{ $msg->sender_id == Auth::id() ? 'sent' : 'received' }}">
+                        <div class="message {{ $msg->sender_id == Auth::id() ? 'sent' : 'received' }}" data-msg-id="{{ $msg->id }}">
                             @if($msg->message)
                                 <div>{{ $msg->message }}</div>
                             @endif
                             @if($msg->file_path)
                                 @if($msg->file_type == 'image')
-                                    <img src="{{ asset('storage/'.$msg->file_path) }}" class="message-file">
+                                    <img src="{{ asset('storage/'.$msg->file_path) }}" class="message-file" onclick="window.open(this.src)">
                                 @else
                                     <div class="message-file">
                                         <a href="{{ asset('storage/'.$msg->file_path) }}" target="_blank" style="color: inherit;">📄 View PDF Document</a>
@@ -295,13 +286,13 @@
                     <div id="file-preview" style="display: none; padding: 10px; background: #f8f9fa; border-bottom: 1px solid #eee; align-items: center; gap: 10px; position: relative;">
                         <img id="preview-img" src="" style="max-height: 60px; border-radius: 5px; display: none;">
                         <div id="preview-file-name" style="font-size: 0.8rem; color: #666; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-                        <span onclick="clearFile()" style="cursor: pointer; color: #dc3545; font-size: 1.2rem; padding: 0 5px;">&times;</span>
+                        <span onclick="window.clearFile()" style="cursor: pointer; color: #dc3545; font-size: 1.2rem; padding: 0 5px;">&times;</span>
                     </div>
                     <div class="input-wrapper" style="display: flex; gap: 1rem; align-items: center; width: 100%;">
                         <label for="file-input" class="file-label">📎</label>
                         <input type="file" id="file-input" accept="image/*,application/pdf">
-                        <input type="text" id="chat-input" class="chat-input" placeholder="Type your message here..." onkeypress="if(event.key === 'Enter') sendMessage()">
-                        <button class="btn-primary send-btn" style="padding: 0.8rem 2rem; border-radius: 30px;" onclick="sendMessage()">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Type your message here..." onkeypress="if(event.key === 'Enter') window.sendMessage()">
+                        <button class="btn-primary send-btn" id="send-btn" style="padding: 0.8rem 2rem; border-radius: 30px;" onclick="window.sendMessage()">
                             <span>Send</span>
                             <i class="fas fa-paper-plane" style="display: none;"></i>
                         </button>
@@ -318,285 +309,238 @@
     </div>
 
     <script>
-        const messagesArea = document.getElementById('messages-area');
-        const chatInput = document.getElementById('chat-input');
-        if (chatInput) {
-            chatInput.addEventListener('focus', () => {
-                setTimeout(() => {
-                    if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
-                }, 300);
-            });
+        // Use a persistent object to store app state across Turbo navigations
+        // If user context changed, reset state and leave old channel
+        if (window.chatAppState && window.chatAppState.currentUserId != {{ Auth::id() }}) {
+            if (window.Echo) window.Echo.leave(`chat.${window.chatAppState.currentUserId}`);
+            window.chatAppState = null;
         }
-        const fileInput = document.getElementById('file-input');
-        const activeUserId = {{ $activeChatUser ? $activeChatUser->id : 'null' }};
-        const currentUserId = {{ Auth::id() }};
-        const filePreview = document.getElementById('file-preview');
-        const previewImg = document.getElementById('preview-img');
-        const previewFileName = document.getElementById('preview-file-name');
 
-        if (fileInput) {
-            fileInput.onchange = function() {
-            const file = fileInput.files[0];
-            if (file) {
-                filePreview.style.display = 'flex';
-                previewFileName.innerText = file.name;
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        previewImg.src = e.target.result;
-                        previewImg.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    previewImg.style.display = 'none';
-                }
-            }
+        window.chatAppState = window.chatAppState || {
+            activeUserId: null,
+            currentUserId: {{ Auth::id() }},
+            renderedMessageIds: new Set(),
+            isEchoInitialized: false,
+            messageHandler: null
         };
-    }
 
-        function clearFile() {
-            fileInput.value = '';
-            filePreview.style.display = 'none';
-            previewImg.src = '';
-        }
-
-        if (messagesArea) {
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        function appendOptimisticMessage(message, file) {
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            let fileHtml = '';
+        (function() {
+            const state = window.chatAppState;
+            state.activeUserId = {{ $activeChatUser ? $activeChatUser->id : 'null' }};
             
-            if (file) {
-                if (file.type.startsWith('image/')) {
-                    const url = URL.createObjectURL(file);
-                    fileHtml = `<img src="${url}" class="message-file" style="opacity: 0.5;">`;
-                } else {
-                    fileHtml = `<div class="message-file-link" style="opacity: 0.5;">📄 Sending ${file.name}...</div>`;
-                }
-            }
+            const messagesArea = document.getElementById('messages-area');
+            const chatInput = document.getElementById('chat-input');
+            const fileInput = document.getElementById('file-input');
+            const filePreview = document.getElementById('file-preview');
+            const previewImg = document.getElementById('preview-img');
+            const previewFileName = document.getElementById('preview-file-name');
 
-            const html = `
-                <div class="message sent optimistic-msg" style="opacity: 0.7;">
-                    ${message ? `<div>${message}</div>` : ''}
-                    ${fileHtml}
-                    <div style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-                        ${time}
-                        <i class="fas fa-clock" style="font-size: 0.8rem;"></i>
-                    </div>
-                </div>
-            `;
-            messagesArea.insertAdjacentHTML('beforeend', html);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            const file = fileInput.files[0];
-            
-            if (!message && !file) return;
-
-            if (file && file.size > 20 * 1024 * 1024) {
-                alert('File size exceeds 20MB limit.');
-                return;
-            }
-
-            // --- OPTIMISTIC UPDATE ---
-            appendOptimisticMessage(message, file);
-            chatInput.value = '';
-            chatInput.focus();
-            const pendingFile = file; // Keep reference for clearing
-            clearFile();
-
-            const formData = new FormData();
-            if (message) formData.append('message', message);
-            if (pendingFile) formData.append('file', pendingFile);
-
-            try {
-                const response = await fetch(`/chat/${activeUserId}/send`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: formData
+            // Initialize rendered IDs from current DOM
+            state.renderedMessageIds = new Set();
+            if (messagesArea) {
+                messagesArea.querySelectorAll('[data-msg-id]').forEach(el => {
+                    state.renderedMessageIds.add(el.dataset.msgId);
                 });
-                const data = await response.json();
-                if (data.success) {
-                    // Success: fetchMessages will eventually replace the optimistic message with the real one
-                    fetchMessages();
-                } else {
-                    // Remove optimistic message on failure
-                    const lastMsg = document.querySelector('.optimistic-msg');
-                    if (lastMsg) lastMsg.remove();
-                    alert(data.message || 'Failed to send message');
-                }
-            } catch (err) {
-                console.error(err);
-                const lastMsg = document.querySelector('.optimistic-msg');
-                if (lastMsg) lastMsg.remove();
-                alert('Network error. Please try again.');
+                messagesArea.scrollTop = messagesArea.scrollHeight;
             }
-        }
 
-        async function fetchMessages() {
-            if (!activeUserId) return;
+            // Expose core functions to window for HTML event handlers
+            window.clearFile = function() {
+                if (fileInput) fileInput.value = '';
+                if (filePreview) filePreview.style.display = 'none';
+                if (previewImg) previewImg.src = '';
+            };
 
-            try {
-                const response = await fetch(`/chat/${activeUserId}/fetch`);
-                const data = await response.json();
-                if (data.success) {
-                    const currentScroll = messagesArea.scrollTop + messagesArea.clientHeight;
-                    const isAtBottom = currentScroll >= messagesArea.scrollHeight - 50;
+            window.sendMessage = async function() {
+                const message = chatInput.value.trim();
+                const file = fileInput.files ? fileInput.files[0] : null;
+                
+                if (!message && !file) return;
 
-                    // Keep track of optimistic messages
-                    const optimisticMessages = Array.from(document.querySelectorAll('.optimistic-msg'));
-                    const serverMessagesContent = data.messages.map(m => m.message);
+                // Optimistic UI
+                const tempId = 'temp_' + Date.now();
+                renderMessage({
+                    id: tempId,
+                    message: message,
+                    sender_id: state.currentUserId,
+                    created_at: new Date().toISOString(),
+                    is_optimistic: true,
+                    file_type: file ? (file.type.startsWith('image/') ? 'image' : 'pdf') : null,
+                    file_blob: file ? URL.createObjectURL(file) : null
+                });
 
-                    let html = '';
-                    data.messages.forEach(msg => {
-                        const isSent = msg.sender_id == {{ Auth::id() }};
-                        const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        
-                        html += `
-                            <div class="message ${isSent ? 'sent' : 'received'}">
-                                ${msg.message ? `<div>${msg.message}</div>` : ''}
-                                ${msg.file_path ? (
-                                    msg.file_type === 'image' 
-                                    ? `<img src="/storage/${msg.file_path}" class="message-file" onclick="window.open(this.src)">`
-                                    : `<a href="/storage/${msg.file_path}" target="_blank" class="message-file-link">📄 View PDF Document</a>`
-                                ) : ''}
-                                <div style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-                                    ${time}
-                                    ${isSent ? `<i class="fas fa-check-double" style="color: ${msg.is_read ? '#34b7f1' : '#aaa'}; font-size: 0.8rem;"></i>` : ''}
-                                </div>
-                            </div>
-                        `;
+                chatInput.value = '';
+                chatInput.focus();
+                const pendingFile = file;
+                window.clearFile();
+
+                const formData = new FormData();
+                if (message) formData.append('message', message);
+                if (pendingFile) formData.append('file', pendingFile);
+
+                try {
+                    const response = await fetch(`/chat/${state.activeUserId}/send`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                        body: formData
                     });
+                    const data = await response.json();
                     
-                    messagesArea.innerHTML = html;
-
-                    // Re-append optimistic messages only if they aren't on the server yet
-                    optimisticMessages.forEach(msg => {
-                        const msgText = msg.querySelector('div:first-child')?.innerText;
-                        if (msgText && !serverMessagesContent.includes(msgText)) {
-                            messagesArea.appendChild(msg);
-                        } else if (!msgText && msg.querySelector('.message-file')) {
-                            // It's a file-only message, harder to match, so we just keep it until 
-                            // the server returns a file message (approximate check)
-                            const serverHasFile = data.messages.some(m => m.file_path && m.sender_id == {{ Auth::id() }});
-                            if (!serverHasFile) messagesArea.appendChild(msg);
+                    if (data.success) {
+                        // Replace temp message with server message if needed, or just let fetch/echo handle it
+                        // For now, we'll just remove the optimistic tag or wait for refresh
+                        const tempEl = document.querySelector(`[data-msg-id="${tempId}"]`);
+                        if (tempEl && data.message) {
+                            tempEl.dataset.msgId = data.message.id;
+                            state.renderedMessageIds.add(data.message.id.toString());
+                            tempEl.style.opacity = '1';
+                            tempEl.querySelector('.fa-clock')?.classList.replace('fa-clock', 'fa-check-double');
                         }
-                    });
-                    
-                    if (isAtBottom) {
-                        messagesArea.scrollTop = messagesArea.scrollHeight;
+                    } else {
+                        document.querySelector(`[data-msg-id="${tempId}"]`)?.remove();
+                        alert(data.message || 'Failed to send');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    document.querySelector(`[data-msg-id="${tempId}"]`)?.remove();
+                }
+            };
+
+            async function fetchMessages() {
+                if (!state.activeUserId) return;
+                try {
+                    const response = await fetch(`/chat/${state.activeUserId}/fetch`);
+                    const data = await response.json();
+                    if (data.success) {
+                        data.messages.forEach(msg => renderMessage(msg));
+                    }
+                } catch (err) { console.error('Fetch error:', err); }
+            }
+
+            function renderMessage(msg, isOptimistic = false) {
+                if (!messagesArea) return;
+                
+                // Strict deduplication: check both in-memory set and DOM
+                if (state.renderedMessageIds.has(msg.id.toString()) || 
+                    document.querySelector(`[data-msg-id="${msg.id}"]`)) {
+                    return;
+                }
+
+                const isSent = msg.sender_id == state.currentUserId;
+                const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let fileHtml = '';
+                if (msg.file_path || msg.file_blob) {
+                    const url = msg.file_blob || `/storage/${msg.file_path}`;
+                    if (msg.file_type === 'image') {
+                        fileHtml = `<img src="${url}" class="message-file" onclick="window.open(this.src)">`;
+                    } else {
+                        fileHtml = `<a href="${url}" target="_blank" class="message-file-link">📄 View PDF Document</a>`;
                     }
                 }
-            } catch (err) {
-                console.error(err);
-            }
-        }
 
-        // Real-time listener using WebSockets
-        function initEcho() {
-            if (typeof window.Echo !== 'undefined' && currentUserId) {
-                console.log('Attempting to subscribe to channel: chat.' + currentUserId);
+                const html = `
+                    <div class="message ${isSent ? 'sent' : 'received'}" data-msg-id="${msg.id}" style="${isOptimistic ? 'opacity: 0.7;' : ''}">
+                        ${msg.message ? `<div>${msg.message}</div>` : ''}
+                        ${fileHtml}
+                        <div style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                            ${time}
+                            ${isSent ? (isOptimistic ? '<i class="fas fa-clock"></i>' : `<i class="fas fa-check-double" style="color: ${msg.is_read ? '#34b7f1' : '#aaa'};"></i>`) : ''}
+                        </div>
+                    </div>
+                `;
+
+                messagesArea.insertAdjacentHTML('beforeend', html);
+                state.renderedMessageIds.add(msg.id.toString());
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+
+            function handleIncomingMessage(e) {
+                const msg = e.message;
                 
-                window.Echo.private(`chat.${currentUserId}`)
-                    .subscribed(() => {
-                        console.log('Successfully subscribed to private channel: chat.' + currentUserId);
-                    })
+                // If chatting with sender, render it
+                if (state.activeUserId && msg.sender_id == state.activeUserId) {
+                    renderMessage(msg);
+                } else {
+                    // Update sidebar notification
+                    const item = document.querySelector(`.contact-item[data-contact-id="${msg.sender_id}"]`);
+                    if (item && !item.classList.contains('active')) {
+                        item.classList.add('has-new-msg');
+                    }
+                }
+            }
+
+            // Register the current handler to the global proxy
+            state.messageHandler = handleIncomingMessage;
+
+            // WebSocket Initialization (Global Singleton)
+            function initEcho() {
+                if (typeof window.Echo === 'undefined') {
+                    setTimeout(initEcho, 500);
+                    return;
+                }
+
+                if (state.isEchoInitialized) return;
+
+                console.log('Initializing Global Chat Echo Listener for user:', state.currentUserId);
+                window.Echo.private(`chat.${state.currentUserId}`)
                     .listen('.message.sent', (e) => {
-                        console.log('PRIVATE event received:', e);
-                        handleIncomingMessage(e);
+                        console.log('Real-time message received:', e);
+                        if (typeof state.messageHandler === 'function') {
+                            state.messageHandler(e);
+                        }
                     })
                     .error((error) => {
-                        console.error('Echo subscription error:', error);
+                        console.error('Echo Private Channel Error:', error);
                     });
-
-                // Public debug listener
-                window.Echo.channel('chat-debug')
-                    .listen('.message.sent', (e) => {
-                        console.log('PUBLIC event received:', e);
-                        if (e.message.receiver_id == currentUserId) {
-                            handleIncomingMessage(e);
-                        }
-                    });
-
-                function handleIncomingMessage(e) {
-                    console.log('Processing incoming message:', e);
-                    // If we are currently chatting with the sender, show the message
-                    if (activeUserId && e.message.sender_id == activeUserId) {
-                        appendReceivedMessage(e.message);
-                        markAsRead(e.message.id);
-                    } else {
-                        // Update sidebar notification
-                        updateSidebarNotification(e.message.sender_id);
-                    }
-                }
-
-                // RAW DEBUGGER: Log everything from the connection
-                if (window.Echo.connector.pusher) {
-                    window.Echo.connector.pusher.connection.bind('message', (payload) => {
-                        console.log('RAW WEBSOCKET MESSAGE:', payload);
-                    });
-                }
-            } else {
-                // Wait for Echo to be ready
-                setTimeout(initEcho, 500);
+                
+                state.isEchoInitialized = true;
             }
-        }
 
-        initEcho();
+            initEcho();
 
-        function appendReceivedMessage(msg) {
-            const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const html = `
-                <div class="message received">
-                    ${msg.message ? `<div>${msg.message}</div>` : ''}
-                    ${msg.file_path ? (
-                        msg.file_type === 'image' 
-                        ? `<img src="/storage/${msg.file_path}" class="message-file" onclick="window.open(this.src)">`
-                        : `<a href="/storage/${msg.file_path}" target="_blank" class="message-file-link">📄 View PDF Document</a>`
-                    ) : ''}
-                    <div style="font-size: 0.65rem; margin-top: 0.5rem; opacity: 0.7; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-                        ${time}
-                    </div>
-                </div>
-            `;
-            messagesArea.insertAdjacentHTML('beforeend', html);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        async function markAsRead(messageId) {
-            // Optional: send request to mark as read
-        }
-
-        function updateSidebarNotification(senderId) {
-            // Optional: highlight contact in sidebar
-        }
-
-        // Handle mobile keyboard
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => {
-                const container = document.querySelector('.chat-container');
-                if (window.innerWidth <= 992) {
-                    const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.8;
-                    if (isKeyboardOpen) {
-                        document.body.classList.add('keyboard-open');
-                        container.style.top = '0px';
-                        container.style.height = `${window.visualViewport.height}px`;
-                    } else {
-                        document.body.classList.remove('keyboard-open');
-                        container.style.top = '70px';
-                        container.style.height = `${window.visualViewport.height - 70}px`;
+            // File input preview logic
+            if (fileInput) {
+                fileInput.onchange = function() {
+                    const file = fileInput.files[0];
+                    if (file) {
+                        filePreview.style.display = 'flex';
+                        previewFileName.innerText = file.name;
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = e => {
+                                previewImg.src = e.target.result;
+                                previewImg.style.display = 'block';
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            previewImg.style.display = 'none';
+                        }
                     }
-                    if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
-                }
-            });
-        }
-    </script>
+                };
+            }
 
+            // Keyboard handling for mobile
+            if (window.visualViewport) {
+                const handleResize = () => {
+                    const container = document.querySelector('.chat-container');
+                    if (window.innerWidth <= 992 && container) {
+                        const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.8;
+                        container.style.top = isKeyboardOpen ? '0px' : '70px';
+                        container.style.height = `${window.visualViewport.height - (isKeyboardOpen ? 0 : 70)}px`;
+                        if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
+                    }
+                };
+                window.visualViewport.addEventListener('resize', handleResize);
+            }
+
+            // Turbo cache cleanup
+            document.addEventListener('turbo:before-cache', () => {
+                // Remove optimistic messages or temporary states before caching
+                document.querySelectorAll('.message[data-msg-id^="temp_"]').forEach(el => el.remove());
+            }, { once: true });
+
+        })();
+    </script>
 </body>
 </html>

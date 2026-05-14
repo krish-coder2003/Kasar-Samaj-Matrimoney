@@ -125,6 +125,9 @@
         
         @yield('styles')
     </style>
+
+    <!-- Hotwire Turbo -->
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
 </head>
 <body>
     <div class="sidebar">

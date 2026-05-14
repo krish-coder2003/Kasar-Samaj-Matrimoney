@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Hotwire Turbo -->
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #800000 0%, #a00000 100%);
@@ -533,7 +537,7 @@
                                 $mainPhoto = !empty($photos) ? asset('storage/' . $photos[0]) : 'https://ui-avatars.com/api/?name=' . urlencode($match->name) . '&background=800000&color=fff&size=300';
                             @endphp
                             <div class="match-photo" style="background-image: url('{{ $mainPhoto }}');">
-                                <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="toggleLike({{ $match->id }}, event)">
+                                <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="window.toggleLike({{ $match->id }}, event)">
                                     <i class="{{ in_array($match->id, $likedUserIds) ? 'fas' : 'far' }} fa-heart"></i>
                                 </div>
                             </div>
@@ -581,7 +585,7 @@
                         $mainPhoto = !empty($photos) ? asset('storage/' . $photos[0]) : 'https://ui-avatars.com/api/?name=' . urlencode($match->name) . '&background=800000&color=fff&size=300';
                     @endphp
                     <div class="match-photo" id="main-photo-{{ $match->id }}" style="background-image: url('{{ $mainPhoto }}'); position: relative;">
-                        <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="toggleLike({{ $match->id }}, event)" id="like-{{ $match->id }}">
+                        <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="window.toggleLike({{ $match->id }}, event)" id="like-{{ $match->id }}">
                             <i class="{{ in_array($match->id, $likedUserIds) ? 'fas' : 'far' }} fa-heart"></i>
                         </div>
                     </div>
@@ -609,7 +613,7 @@
                             <span><i class="fas fa-briefcase"></i> Occupation: {{ $match->profile->occupation ?? 'N/A' }}</span>
                             <span><i class="fas fa-map-marker-alt"></i> City: {{ $match->profile->city ?? 'N/A' }}, {{ $match->profile->state ?? 'N/A' }}</span>
                         </div>
-                        <button class="btn-primary btn-block" style="padding: 0.5rem;" onclick="openDetailModal({{ json_encode($match) }}, {{ json_encode($photos) }}, {{ Auth::user()->is_premium ? 'true' : 'false' }}, {{ in_array($match->id, $sentInterestIds) ? 'true' : 'false' }})"><i class="fas fa-eye"></i> View Full Profile</button>
+                        <button class="btn-primary btn-block" style="padding: 0.5rem;" onclick="window.openDetailModal({{ json_encode($match) }}, {{ json_encode($photos) }}, {{ Auth::user()->is_premium ? 'true' : 'false' }}, {{ in_array($match->id, $sentInterestIds) ? 'true' : 'false' }})"><i class="fas fa-eye"></i> View Full Profile</button>
                     </div>
                 </div>
             @empty
@@ -627,14 +631,14 @@
     @endphp
     @guest
     <section class="hero" style="{{ $heroStyle }}">
-        <button class="btn-primary" onclick="openModal()">Get Started & Find Your Match</button>
+        <button class="btn-primary" onclick="window.openModal()">Get Started & Find Your Match</button>
     </section>
     @endguest
 
     <!-- Detail Modal -->
     <div id="detailModal" class="detail-modal">
         <div class="detail-content">
-            <div class="close-modal-btn" onclick="closeDetailModal()">
+            <div class="close-modal-btn" onclick="window.closeDetailModal()">
                 <i class="fas fa-times"></i>
             </div>
             <div class="detail-grid">
@@ -682,7 +686,7 @@
 
                     <div class="btn-floating">
                         <input type="hidden" id="detail-user-id">
-                        <button id="send-interest-btn" class="btn-premium btn-block" style="padding: 1.2rem;" onclick="sendInterest()">
+                        <button id="send-interest-btn" class="btn-premium btn-block" style="padding: 1.2rem;" onclick="window.sendInterest()">
                             <i class="fas fa-paper-plane"></i> Send Interest
                         </button>
                     </div>
@@ -782,13 +786,13 @@
         <div class="modal-content" style="width: 95%; max-width: 500px; padding: 0; border-radius: 24px; overflow: hidden; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); margin: auto; position: relative; max-height: 90vh; overflow-y: auto;">
             <!-- Modal Header -->
             <div style="padding: 2.5rem; background: white; position: relative;">
-                <span class="close" onclick="closeModal()" style="top: 20px; right: 25px; font-size: 24px; font-weight: 300;">&times;</span>
+                <span class="close" onclick="window.closeModal()" style="top: 20px; right: 25px; font-size: 24px; font-weight: 300;">&times;</span>
                 <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem; color: #1a1a1a; font-family: 'Playfair Display', serif;">Register Now &</h2>
                 <p style="font-size: 1.2rem; color: #444; margin-bottom: 1.5rem;">Find your perfect life partner</p>
                 
                 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 2rem;">
                     <span style="font-size: 0.9rem; color: #666;">Already a member?</span>
-                    <button onclick="toggleLoginMode()" id="toggle-btn" style="padding: 8px 20px; border-radius: 50px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; transition: 0.3s;">Log In</button>
+                    <button onclick="window.toggleLoginMode()" id="toggle-btn" style="padding: 8px 20px; border-radius: 50px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; transition: 0.3s;">Log In</button>
                 </div>
 
                 <div id="registration-form">
@@ -805,8 +809,8 @@
                     <div class="form-group">
                         <label style="font-size: 0.9rem; color: #444; margin-bottom: 0.8rem; font-weight: 600;">Select Gender</label>
                         <div class="gender-container" style="display: flex; gap: 15px;">
-                            <button type="button" onclick="setGender('Male')" class="gender-btn active" id="gender-male" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Male</button>
-                            <button type="button" onclick="setGender('Female')" class="gender-btn" id="gender-female" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Female</button>
+                            <button type="button" onclick="window.setGender('Male')" class="gender-btn active" id="gender-male" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Male</button>
+                            <button type="button" onclick="window.setGender('Female')" class="gender-btn" id="gender-female" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Female</button>
                             <input type="hidden" id="gender" value="Male">
                         </div>
                     </div>
@@ -834,10 +838,10 @@
                     </label>
                 </div>
 
-                <button class="btn-primary btn-block" id="action-btn" onclick="sendOtp()" style="padding: 1.2rem; border-radius: 12px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);">Register Now</button>
+                <button class="btn-primary btn-block" id="action-btn" onclick="window.sendOtp()" style="padding: 1.2rem; border-radius: 12px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);">Register Now</button>
                 
                 <p id="resend-timer" style="text-align: center; margin-top: 1rem; font-size: 0.9rem; display: none;">
-                    Didn't receive? <a href="#" onclick="sendOtp()" style="color: var(--primary); font-weight: 600;">Resend OTP</a>
+                    Didn't receive? <a href="#" onclick="window.sendOtp()" style="color: var(--primary); font-weight: 600;">Resend OTP</a>
                 </p>
 
                 <p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem;">
@@ -868,7 +872,7 @@
     @include('partials.footer')
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('turbo:load', function() {
             // State Variables
             let isLoginMode = false;
             const modal = document.getElementById("loginModal");
@@ -883,7 +887,7 @@
             @guest
                 setTimeout(() => {
                     if (!sessionStorage.getItem('popupShown')) {
-                        openModal();
+                        window.openModal();
                         sessionStorage.setItem('popupShown', 'true');
                     }
                 }, 3000);
@@ -896,7 +900,7 @@
 
             window.closeModal = function() {
                 if (modal) modal.style.display = "none";
-                resetModal();
+                window.resetModal();
             };
 
             window.resetModal = function() {
@@ -904,7 +908,7 @@
                 document.getElementById('otp-display').style.display = "none";
                 if (actionBtn) {
                     actionBtn.disabled = false;
-                    actionBtn.setAttribute('onclick', 'sendOtp()');
+                    actionBtn.setAttribute('onclick', 'window.sendOtp()');
                     actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
                 }
             };
@@ -924,7 +928,7 @@
                     modalTitle.innerText = 'Register Now &';
                     modalSub.innerText = 'Find your perfect life partner';
                 }
-                resetModal();
+                window.resetModal();
             };
 
             window.setGender = function(gender) {
@@ -939,8 +943,8 @@
                 const email = document.getElementById('email').value;
                 const termsChecked = document.getElementById('terms_agree').checked;
 
-                if (!email) return showNotification('Please enter email', 'error');
-                if (!termsChecked) return showNotification('Please agree to the Terms and Conditions', 'error');
+                if (!email) return window.showNotification('Please enter email', 'error');
+                if (!termsChecked) return window.showNotification('Please agree to the Terms and Conditions', 'error');
 
                 actionBtn.disabled = true;
                 actionBtn.innerText = 'Sending...';
@@ -958,28 +962,28 @@
                     
                     if (response.ok) {
                         if (isLoginMode && data.is_new) {
-                            showNotification('Account not found. Please register first.', 'error');
+                            window.showNotification('Account not found. Please register first.', 'error');
                             actionBtn.disabled = false;
                             actionBtn.innerText = 'Log In';
                             return;
                         }
 
-                        showNotification(data.message, 'success');
+                        window.showNotification(data.message, 'success');
                         document.getElementById('otp-entry-section').style.display = "block";
                         actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
                         actionBtn.disabled = false;
-                        actionBtn.setAttribute('onclick', 'verifyOtp()');
+                        actionBtn.setAttribute('onclick', 'window.verifyOtp()');
                         
                         const otpDisplay = document.getElementById('otp-display');
                         otpDisplay.innerText = `Test OTP: ${data.otp}`;
                         otpDisplay.style.display = "block";
                     } else {
-                        showNotification(data.message || 'Error sending OTP', 'error');
+                        window.showNotification(data.message || 'Error sending OTP', 'error');
                         actionBtn.disabled = false;
                         actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
                     }
                 } catch (err) {
-                    showNotification('Connection error. Try again.', 'error');
+                    window.showNotification('Connection error. Try again.', 'error');
                     actionBtn.disabled = false;
                     actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
                 }
@@ -996,7 +1000,7 @@
                 const gender = genderInput ? genderInput.value : '';
                 const created_by = createdByInput ? createdByInput.value : '';
                 
-                if (!otp) return showNotification('Please enter OTP', 'error');
+                if (!otp) return window.showNotification('Please enter OTP', 'error');
 
                 actionBtn.disabled = true;
                 actionBtn.innerText = 'Verifying...';
@@ -1013,19 +1017,19 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        showNotification(data.message, 'success');
+                        window.showNotification(data.message, 'success');
                         setTimeout(() => window.location.href = data.redirect, 800);
                     } else {
-                        showNotification(data.message, 'error');
+                        window.showNotification(data.message, 'error');
                         if (isLoginMode && data.message.toLowerCase().includes('name is required')) {
-                            showNotification('Account not found. Please register first.', 'error');
-                            toggleLoginMode();
+                            window.showNotification('Account not found. Please register first.', 'error');
+                            window.toggleLoginMode();
                         }
                         actionBtn.disabled = false;
                         actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
                     }
                 } catch (err) {
-                    showNotification('Verification failed. Check connection.', 'error');
+                    window.showNotification('Verification failed. Check connection.', 'error');
                     actionBtn.disabled = false;
                     actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
                 }
@@ -1041,18 +1045,18 @@
 
             // Global Click Listeners
             window.onclick = function(event) {
-                if (event.target == modal) closeModal();
+                if (event.target == modal) window.closeModal();
             };
 
-            document.getElementById('login-btn')?.addEventListener('click', openModal);
+            document.getElementById('login-btn')?.addEventListener('click', window.openModal);
         });
 
-        // Other utility functions
-        function changePhoto(matchId, url) {
+        // Other utility functions - Attaching to window for onclick compatibility
+        window.changePhoto = function(matchId, url) {
             document.getElementById(`main-photo-${matchId}`).style.backgroundImage = `url('${url}')`;
         }
 
-        function openDetailModal(user, photos, isPremium, alreadySent) {
+        window.openDetailModal = function(user, photos, isPremium, alreadySent) {
             // Track Profile View
             fetch(`/track-view/${user.id}`, {
                 method: 'POST',
@@ -1112,7 +1116,7 @@
 
             const identity = [
                 { label: 'Full Name', value: user.name }, { label: 'Phone', value: phoneHtml },
-                { label: 'Age', value: profile.dob ? calculateAge(profile.dob) + ' Years' : 'N/A' },
+                { label: 'Age', value: profile.dob ? window.calculateAge(profile.dob) + ' Years' : 'N/A' },
                 { label: 'Marital Status', value: profile.marital_status || 'N/A' },
                 { label: 'Height', value: profile.height || 'N/A' }, { label: 'Gender', value: profile.gender || 'N/A' }
             ];
@@ -1152,9 +1156,9 @@
             detailModal.style.justifyContent = "center";
         }
 
-        function closeDetailModal() { document.getElementById("detailModal").style.display = "none"; }
+        window.closeDetailModal = function() { document.getElementById("detailModal").style.display = "none"; }
 
-        async function sendInterest() {
+        window.sendInterest = async function() {
             const receiverId = document.getElementById('detail-user-id').value;
             const btn = document.getElementById('send-interest-btn');
             btn.innerText = 'Sending...'; btn.disabled = true;
@@ -1165,12 +1169,12 @@
                     body: JSON.stringify({ receiver_id: receiverId })
                 });
                 const data = await response.json();
-                if (data.success) { showNotification(data.message, 'success'); btn.innerText = 'Interest Sent'; btn.style.background = '#28a745'; }
-                else { showNotification(data.message, 'error'); btn.innerText = 'Send Interest'; btn.disabled = false; }
-            } catch (err) { showNotification('Something went wrong', 'error'); btn.innerText = 'Send Interest'; btn.disabled = false; }
+                if (data.success) { window.showNotification(data.message, 'success'); btn.innerText = 'Interest Sent'; btn.style.background = '#28a745'; }
+                else { window.showNotification(data.message, 'error'); btn.innerText = 'Send Interest'; btn.disabled = false; }
+            } catch (err) { window.showNotification('Something went wrong', 'error'); btn.innerText = 'Send Interest'; btn.disabled = false; }
         }
 
-        function calculateAge(dob) {
+        window.calculateAge = function(dob) {
             const birthDate = new Date(dob);
             const today = new Date();
             let age = today.getFullYear() - birthDate.getFullYear();
@@ -1179,7 +1183,7 @@
             return age;
         }
 
-        function toggleLike(userId, event) {
+        window.toggleLike = function(userId, event) {
             if (event) event.stopPropagation();
             fetch(`/like/${userId}`, {
                 method: 'POST',
@@ -1190,9 +1194,9 @@
                     const icon = btn.querySelector('i');
                     if (data.liked) { btn.classList.add('active'); icon.classList.replace('far', 'fas'); }
                     else { btn.classList.remove('active'); icon.classList.replace('fas', 'far'); }
-                    showNotification(data.message, 'success');
+                    window.showNotification(data.message, 'success');
                 } else {
-                    showNotification(data.message, 'error');
+                    window.showNotification(data.message, 'error');
                     if (data.message.includes('premium')) setTimeout(() => window.location.href = "{{ route('plans') }}", 1500);
                 }
             });

@@ -16,6 +16,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
     @yield('styles')
+
+    <!-- Hotwire Turbo -->
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
 </head>
 <body>
     @include('partials.recovery-banner')

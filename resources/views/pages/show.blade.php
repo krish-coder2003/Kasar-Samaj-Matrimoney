@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Hotwire Turbo -->
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+
     <style>
         .page-content {
             padding: 120px 5% 5rem;
@@ -92,23 +96,23 @@
     </div>
 
     <script>
-        function toggleChat() {
-            const window = document.getElementById('chatbot-window');
-            window.classList.toggle('active');
-            document.getElementById('chat-icon').innerText = window.classList.contains('active') ? '✕' : '💬';
+        window.toggleChat = function() {
+            const chatWin = document.getElementById('chatbot-window');
+            chatWin.classList.toggle('active');
+            document.getElementById('chat-icon').innerText = chatWin.classList.contains('active') ? '✕' : '💬';
         }
 
-        function askDropdownQuery() {
+        window.askDropdownQuery = function() {
             const dropdown = document.getElementById('query-dropdown');
             const selected = dropdown.value;
             if (selected) {
                 document.getElementById('chatbot-chat-input').value = selected;
-                sendMessage();
+                window.sendMessage();
                 dropdown.value = ''; // Reset
             }
         }
 
-        async function sendMessage() {
+        window.sendMessage = async function() {
             const input = document.getElementById('chatbot-chat-input');
             const container = document.getElementById('chatbot-messages');
             const typing = document.getElementById('chatbot-typing');
