@@ -11,11 +11,15 @@
     <style>
         body { background: #fdfaf5 !important; overflow: hidden; }
         .chat-container {
-            margin-top: 80px;
+            position: fixed;
+            top: 80px;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: calc(100vh - 80px);
+            height: calc(100dvh - 80px);
             display: flex;
             background: #fdfaf5;
-            position: relative;
             z-index: 10;
         }
         .chat-sidebar {
@@ -152,8 +156,9 @@
         /* Mobile Responsiveness */
         @media (max-width: 992px) {
             .chat-container {
-                margin-top: 70px;
+                top: 70px;
                 height: calc(100vh - 70px);
+                height: calc(100dvh - 70px);
             }
             .chat-sidebar {
                 width: 100%;
