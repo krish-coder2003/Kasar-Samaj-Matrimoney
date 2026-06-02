@@ -305,11 +305,43 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
     <script>
         const messagesArea = document.getElementById('messages-area');
         const chatInput = document.getElementById('chat-input');
         const fileInput = document.getElementById('file-input');
         const activeUserId = {{ $activeChatUser ? $activeChatUser->id : 'null' }};
+        const currentUserId = {{ Auth::id() }};
+        
+        // Reverb / Websocket Configuration
+        const wsHost = window.location.hostname;
+        const wsPort = {{ env('REVERB_PORT', 8080) }};
+        const appKey = "{{ env('REVERB_APP_KEY') }}";
+
+        if (appKey) {
+            // Initialize Pusher Client for Laravel Reverb
+            const pusher = new Pusher(appKey, {
+                cluster: 'reverb',
+                wsHost: wsHost,
+                wsPort: wsPort,
+                wssPort: wsPort,
+                forceTLS: window.location.protocol === 'https:',
+                enabledTransports: ['ws', 'wss'],
+                disableStats: true
+            });
+
+            const channelName = 'chat.' + currentUserId;
+            const channel = pusher.subscribe(channelName);
+
+            channel.bind('message.sent', function(data) {
+                console.log('Real-time message received:', data);
+                // If the incoming message is from the active chat partner, fetch new messages!
+                if (activeUserId && data.sender_id === activeUserId) {
+                    fetchMessages();
+                }
+            });
+        }
+
         const filePreview = document.getElementById('file-preview');
         const previewImg = document.getElementById('preview-img');
         const previewFileName = document.getElementById('preview-file-name');
@@ -385,6 +417,7 @@
             chatInput.value = '';
             const pendingFile = file; // Keep reference for clearing
             clearFile();
+            chatInput.focus();
 
             const formData = new FormData();
             if (message) formData.append('message', message);

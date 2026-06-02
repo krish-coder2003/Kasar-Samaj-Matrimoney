@@ -90,6 +90,8 @@ class ChatController extends Controller
             'file_type' => $fileType
         ]);
 
+        broadcast(new \App\Events\MessageSent($currentUser->id, (int)$userId));
+
         return response()->json(['success' => true, 'message' => $message]);
     }
 
