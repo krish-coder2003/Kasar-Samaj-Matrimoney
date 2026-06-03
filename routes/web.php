@@ -11,6 +11,8 @@ Route::get('/', [AuthController::class, 'index'])->name('home');
 Route::get('/login', function() { return redirect()->route('home'); })->name('login');
 Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send.otp');
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/logout', [AuthController::class, 'logout']); // Fallback for manual entry
 
@@ -39,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{user?}', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{user}/fetch', [\App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('chat.fetch');
     Route::post('/chat/{user}/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::get('/chat/{user}/fetch', [\App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('chat.fetch');
     // Account Deletion
     Route::post('/profile/delete-request', [\App\Http\Controllers\AccountDeletionController::class, 'requestDeletion'])->name('profile.delete.request');
     Route::post('/profile/delete-confirm', [\App\Http\Controllers\AccountDeletionController::class, 'confirmDeletion'])->name('profile.delete.confirm');

@@ -7,12 +7,12 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSent implements ShouldBroadcast
+class MessageSent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,11 +27,6 @@ class MessageSent implements ShouldBroadcast
         Log::info('Broadcasting MessageSent event for message ID: ' . $message->id . ' to User: ' . $message->receiver_id);
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     /**
      * Get the channels the event should broadcast on.
      */
@@ -57,7 +52,9 @@ class MessageSent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'message' => $this->message->toArray()
+            'message' => $this->message->toArray(),
+            'sender_id' => $this->message->sender_id,
+            'receiver_id' => $this->message->receiver_id,
         ];
     }
 }

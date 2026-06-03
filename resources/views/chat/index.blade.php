@@ -16,11 +16,15 @@
     <style>
         body { background: #fdfaf5 !important; overflow: hidden; }
         .chat-container {
-            margin-top: 80px;
+            position: fixed;
+            top: 80px;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: calc(100vh - 80px);
+            height: calc(100dvh - 80px);
             display: flex;
             background: #fdfaf5;
-            position: relative;
             z-index: 10;
         }
         .chat-sidebar {
@@ -181,11 +185,12 @@
         /* Mobile Responsiveness */
         @media (max-width: 992px) {
             .chat-container {
-                margin-top: 70px;
+                top: 70px;
                 height: calc(100vh - 70px);
                 position: fixed;
                 top: 70px;
                 left: 0; right: 0; bottom: 0;
+                height: calc(100dvh - 70px);
             }
             .chat-sidebar {
                 width: 100%;
@@ -308,6 +313,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
     <script>
         // Use a persistent object to store app state across Turbo navigations
         // If user context changed, reset state and leave old channel
@@ -356,6 +362,11 @@
                 const file = fileInput.files ? fileInput.files[0] : null;
                 
                 if (!message && !file) return;
+
+                if (file && file.size > 20 * 1024 * 1024) {
+                    alert('File size exceeds 20MB limit.');
+                    return;
+                }
 
                 // Optimistic UI
                 const tempId = 'temp_' + Date.now();
