@@ -202,7 +202,7 @@
                 fetch('/api/notifications/mark-read', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                         'Content-Type': 'application/json'
                     }
                 });
