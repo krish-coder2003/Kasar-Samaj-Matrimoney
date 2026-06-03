@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
 
 class AccountDeletionController extends Controller
 {
@@ -16,13 +18,13 @@ class AccountDeletionController extends Controller
         
         Cache::put('deletion_otp_' . $user->id, $otp, now()->addMinutes(10));
         
-        // Simulating email sending
+        // Send actual verification email
         Log::info("Account Deletion OTP for {$user->email}: {$otp}");
+        Mail::to($user->email)->send(new OtpMail($otp, 'Account Deletion'));
         
         return response()->json([
             'success' => true,
-            'message' => 'Deletion OTP has been sent to your registered email.',
-            'otp' => $otp // For testing
+            'message' => 'Deletion OTP has been sent to your registered email.'
         ]);
     }
 

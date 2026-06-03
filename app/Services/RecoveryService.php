@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
 
 class RecoveryService
 {
@@ -22,8 +24,9 @@ class RecoveryService
         
         Cache::put('reset_otp_' . $email, $otp, now()->addMinutes(15));
 
-        // In a real app, this would be an actual email
+        // Send actual email and log it for debug
         Log::info("Password Reset OTP for Email {$email}: {$otp}");
+        Mail::to($email)->send(new OtpMail($otp, 'Password Reset'));
 
         return $otp;
     }

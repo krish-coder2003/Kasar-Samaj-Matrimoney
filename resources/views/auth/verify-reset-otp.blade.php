@@ -28,11 +28,7 @@
         <h2>Reset Your Password</h2>
         <p style="color: #666; margin-bottom: 2rem;">Verification OTP sent to <strong>{{ $email }}</strong></p>
         
-        @if(session('otp'))
-            <div class="alert alert-success" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
-                <strong>Test Mode:</strong> Your OTP is <strong>{{ session('otp') }}</strong>
-            </div>
-        @endif
+
 
         @if(session('error'))
             <div class="alert alert-error">{{ session('error') }}</div>

@@ -28,8 +28,7 @@ class RecoveryController extends Controller
         $otp = $this->recoveryService->sendOtp($request->email);
 
         return redirect()->route('password.verify.otp', ['email' => $request->email])
-                         ->with('success', 'Reset OTP has been sent to your registered email.')
-                         ->with('otp', $otp);
+                         ->with('success', 'Reset OTP has been sent to your registered email.');
     }
 
     public function showVerifyOtp(Request $request)

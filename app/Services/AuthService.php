@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
 
 class AuthService
 {
@@ -20,8 +22,9 @@ class AuthService
         $otp = generateOtp(6);
         Cache::put('otp_' . $email, $otp, now()->addMinutes(10));
 
-        // Simulate sending email
+        // Send actual email and log it for debug
         Log::info("Login OTP for {$email}: {$otp}");
+        Mail::to($email)->send(new OtpMail($otp, 'Login'));
 
         $userExists = User::where('email', $email)->exists();
 

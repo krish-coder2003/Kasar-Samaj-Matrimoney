@@ -303,7 +303,6 @@
 
             <div id="delete-step-2" style="display: none;">
                 <h2 style="color: #333; font-family: 'Playfair Display', serif; margin-bottom: 1rem;">Verify Deletion</h2>
-                <div id="deletion-otp-display" style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 15px; margin-bottom: 2rem; font-weight: bold;"></div>
                 <input type="text" id="deletion-otp" placeholder="000000" style="width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 15px; text-align: center; font-size: 2rem; letter-spacing: 10px; margin-bottom: 2rem;">
                 <div style="display: flex; gap: 1rem;">
                     <button onclick="closeDeleteModal()" style="flex: 1; padding: 1rem; border: none; border-radius: 15px; background: #f0f0f0; cursor: pointer;">Cancel</button>
@@ -382,9 +381,6 @@
                 if (data.success) {
                     document.getElementById('delete-step-1').style.display = 'none';
                     document.getElementById('delete-step-2').style.display = 'block';
-                    const display = document.getElementById('deletion-otp-display');
-                    display.innerText = 'Test OTP: ' + data.otp;
-                    display.style.display = 'block';
                 } else {
                     alert(data.message);
                 }
