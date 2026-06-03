@@ -74,4 +74,60 @@ class AuthService
             'is_recovery' => $user->isPendingDeletion()
         ];
     }
+
+    /**
+     * Register a new user with password.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function register(array $data)
+    {
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+        ]);
+
+        $user->profile()->create([
+            'gender' => $data['gender'] ?? 'Male',
+            'profile_created_by' => $data['profile_created_by'] ?? 'Self',
+        ]);
+
+        Auth::login($user);
+
+        return [
+            'success' => true,
+            'user' => $user,
+            'is_recovery' => false
+        ];
+    }
+
+    /**
+     * Authenticate user with password.
+     *
+     * @param array $credentials
+     * @return array
+     */
+    public function login(array $credentials)
+    {
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'No account found with this email address.'];
+        }
+
+        if (!\Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
+            return ['success' => false, 'message' => 'Incorrect password.'];
+        }
+
+        Auth::login($user);
+
+        return [
+            'success' => true,
+            'user' => $user,
+            'is_recovery' => $user->isPendingDeletion()
+        ];
+    }
 }
+

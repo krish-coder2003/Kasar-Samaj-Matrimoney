@@ -820,28 +820,35 @@
                     <input type="email" id="email" placeholder="Email Address" required style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 12px; font-size: 1rem;">
                 </div>
 
-                <div id="otp-entry-section" style="display: none;">
-                    <div class="form-group">
-                        <p id="otp-display" style="background: #fff3cd; color: #856404; padding: 0.5rem; border-radius: 8px; text-align: center; margin-bottom: 1rem; font-weight: bold; border: 1px solid #ffeeba;"></p>
-                        <input type="text" id="otp" placeholder="Enter 6-Digit OTP" maxlength="6" style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 12px; font-size: 1rem; text-align: center; letter-spacing: 5px; font-weight: bold;">
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Password" required style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 12px; font-size: 1rem;">
+                    <div id="password-requirements" style="font-size: 0.8rem; color: #666; margin-top: 0.5rem; text-align: left; display: none; background: #f9f9f9; padding: 0.8rem; border-radius: 8px; border: 1px solid #eee;">
+                        <p style="margin: 0 0 4px 0; font-weight: 600;">Password must contain:</p>
+                        <ul style="padding-left: 1.2rem; margin: 0; list-style-type: none;">
+                            <li id="req-length" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least 8 characters</li>
+                            <li id="req-upper" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one uppercase letter</li>
+                            <li id="req-lower" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one lowercase letter</li>
+                            <li id="req-number" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one numeric value</li>
+                            <li id="req-special" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one special character</li>
+                        </ul>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 1.5rem; display: flex; gap: 10px; align-items: flex-start;">
+                <div class="form-group" id="confirm-password-group">
+                    <input type="password" id="password_confirmation" placeholder="Confirm Password" required style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 12px; font-size: 1rem;">
+                </div>
+
+                <div id="terms-group" style="margin-bottom: 1.5rem; display: flex; gap: 10px; align-items: flex-start;">
                     <input type="checkbox" id="terms_agree" checked style="margin-top: 4px; cursor: pointer;">
                     <label for="terms_agree" style="font-size: 0.8rem; color: #666; line-height: 1.4; cursor: pointer;">
                         By clicking Register Now, you agree to our <a href="{{ route('pages.show', 'terms-of-use') }}" target="_blank" style="color: var(--primary); text-decoration: underline;">Terms & Conditions</a> and <a href="{{ route('pages.show', 'privacy-policy') }}" target="_blank" style="color: var(--primary); text-decoration: underline;">Privacy Policy</a>.
                     </label>
                 </div>
 
-                <button class="btn-primary btn-block" id="action-btn" onclick="sendOtp()" style="padding: 1.2rem; border-radius: 12px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);">Register Now</button>
-                
-                <p id="resend-timer" style="text-align: center; margin-top: 1rem; font-size: 0.9rem; display: none;">
-                    Didn't receive? <a href="#" onclick="sendOtp()" style="color: var(--primary); font-weight: 600;">Resend OTP</a>
-                </p>
+                <button class="btn-primary btn-block" id="action-btn" onclick="submitAuth()" style="padding: 1.2rem; border-radius: 12px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);">Register Now</button>
 
                 <p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem;">
-                    <a href="{{ route('password.request') }}" id="forgot-password-link" style="color: #888; text-decoration: none; display: none;">Forgot Password?</a>
+                    <a href="{{ route('password.request') }}" id="forgot-password-link" style="color: var(--primary); text-decoration: none; display: none; font-weight: 600;">Forgot Password?</a>
                 </p>
             </div>
         </div>
@@ -900,31 +907,59 @@
             };
 
             window.resetModal = function() {
-                document.getElementById('otp-entry-section').style.display = "none";
-                document.getElementById('otp-display').style.display = "none";
                 if (actionBtn) {
                     actionBtn.disabled = false;
-                    actionBtn.setAttribute('onclick', 'sendOtp()');
                     actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
                 }
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const passwordConfirmation = document.getElementById('password_confirmation');
+                const reqList = document.getElementById('password-requirements');
+                
+                if (emailInput) emailInput.value = '';
+                if (passwordInput) passwordInput.value = '';
+                if (passwordConfirmation) passwordConfirmation.value = '';
+                if (reqList) reqList.style.display = 'none';
             };
 
             window.toggleLoginMode = function() {
                 isLoginMode = !isLoginMode;
+                const confirmGroup = document.getElementById('confirm-password-group');
+                const termsGroup = document.getElementById('terms-group');
+                const forgotLink = document.getElementById('forgot-password-link');
+                const reqList = document.getElementById('password-requirements');
+
                 if (isLoginMode) {
                     regForm.style.display = 'none';
+                    if (confirmGroup) confirmGroup.style.display = 'none';
+                    if (termsGroup) termsGroup.style.display = 'none';
+                    if (forgotLink) forgotLink.style.display = 'inline-block';
+                    if (reqList) reqList.style.display = 'none';
+                    
                     actionBtn.innerText = 'Log In';
                     toggleBtn.innerText = 'Register';
                     modalTitle.innerText = 'Welcome Back';
                     modalSub.innerText = 'Log in to find your partner';
                 } else {
                     regForm.style.display = 'block';
+                    if (confirmGroup) confirmGroup.style.display = 'block';
+                    if (termsGroup) termsGroup.style.display = 'flex';
+                    if (forgotLink) forgotLink.style.display = 'none';
+                    
                     actionBtn.innerText = 'Register Now';
                     toggleBtn.innerText = 'Log In';
                     modalTitle.innerText = 'Register Now &';
                     modalSub.innerText = 'Find your perfect life partner';
                 }
-                resetModal();
+                
+                // Clear fields on toggle
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const passwordConfirmation = document.getElementById('password_confirmation');
+                
+                if (emailInput) emailInput.value = '';
+                if (passwordInput) passwordInput.value = '';
+                if (passwordConfirmation) passwordConfirmation.value = '';
             };
 
             window.setGender = function(gender) {
@@ -934,89 +969,183 @@
                 else document.getElementById('gender-female').classList.add('active');
             };
 
-            // OTP Logic
-            window.sendOtp = async function() {
+            // Password Real-time Validator
+            const passwordInput = document.getElementById('password');
+            const reqList = document.getElementById('password-requirements');
+            const reqLength = document.getElementById('req-length');
+            const reqUpper = document.getElementById('req-upper');
+            const reqLower = document.getElementById('req-lower');
+            const reqNumber = document.getElementById('req-number');
+            const reqSpecial = document.getElementById('req-special');
+
+            if (passwordInput) {
+                passwordInput.addEventListener('focus', function() {
+                    if (!isLoginMode) {
+                        reqList.style.display = 'block';
+                    }
+                });
+
+                passwordInput.addEventListener('blur', function() {
+                    if (passwordInput.value === '') {
+                        reqList.style.display = 'none';
+                    }
+                });
+
+                passwordInput.addEventListener('input', function() {
+                    if (isLoginMode) return;
+                    const val = passwordInput.value;
+
+                    // Length >= 8
+                    if (val.length >= 8) {
+                        reqLength.style.color = '#28a745';
+                        reqLength.innerHTML = '✓ At least 8 characters';
+                    } else {
+                        reqLength.style.color = '#dc3545';
+                        reqLength.innerHTML = '✗ At least 8 characters';
+                    }
+
+                    // Uppercase
+                    if (/[A-Z]/.test(val)) {
+                        reqUpper.style.color = '#28a745';
+                        reqUpper.innerHTML = '✓ At least one uppercase letter';
+                    } else {
+                        reqUpper.style.color = '#dc3545';
+                        reqUpper.innerHTML = '✗ At least one uppercase letter';
+                    }
+
+                    // Lowercase
+                    if (/[a-z]/.test(val)) {
+                        reqLower.style.color = '#28a745';
+                        reqLower.innerHTML = '✓ At least one lowercase letter';
+                    } else {
+                        reqLower.style.color = '#dc3545';
+                        reqLower.innerHTML = '✗ At least one lowercase letter';
+                    }
+
+                    // Number
+                    if (/[0-9]/.test(val)) {
+                        reqNumber.style.color = '#28a745';
+                        reqNumber.innerHTML = '✓ At least one numeric value';
+                    } else {
+                        reqNumber.style.color = '#dc3545';
+                        reqNumber.innerHTML = '✗ At least one numeric value';
+                    }
+
+                    // Special character
+                    if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) {
+                        reqSpecial.style.color = '#28a745';
+                        reqSpecial.innerHTML = '✓ At least one special character';
+                    } else {
+                        reqSpecial.style.color = '#dc3545';
+                        reqSpecial.innerHTML = '✗ At least one special character';
+                    }
+                });
+            }
+
+            // Password Authentication Submit Logic
+            window.submitAuth = async function() {
                 const email = document.getElementById('email').value;
-                const termsChecked = document.getElementById('terms_agree').checked;
+                const password = document.getElementById('password').value;
 
                 if (!email) return showNotification('Please enter email', 'error');
-                if (!termsChecked) return showNotification('Please agree to the Terms and Conditions', 'error');
+                if (!password) return showNotification('Please enter password', 'error');
 
                 actionBtn.disabled = true;
-                actionBtn.innerText = 'Sending...';
 
-                try {
-                    const response = await fetch("/send-otp", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({ email })
-                    });
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        showNotification(data.message, 'success');
-                        document.getElementById('otp-entry-section').style.display = "block";
-                        actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
-                        actionBtn.disabled = false;
-                        actionBtn.setAttribute('onclick', 'verifyOtp()');
+                if (isLoginMode) {
+                    actionBtn.innerText = 'Logging in...';
+                    try {
+                        const response = await fetch("{{ route('login.submit') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({ email, password })
+                        });
+                        const data = await response.json();
                         
-                        const otpDisplay = document.getElementById('otp-display');
-                        otpDisplay.innerText = `Test OTP: ${data.otp}`;
-                        otpDisplay.style.display = "block";
-                    } else {
-                        showNotification(data.message || 'Error sending OTP', 'error');
+                        if (response.ok && data.success) {
+                            showNotification(data.message, 'success');
+                            setTimeout(() => window.location.href = data.redirect, 800);
+                        } else {
+                            showNotification(data.message || 'Invalid credentials', 'error');
+                            actionBtn.disabled = false;
+                            actionBtn.innerText = 'Log In';
+                        }
+                    } catch (err) {
+                        showNotification('Connection error. Try again.', 'error');
                         actionBtn.disabled = false;
-                        actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
+                        actionBtn.innerText = 'Log In';
                     }
-                } catch (err) {
-                    showNotification('Connection error. Try again.', 'error');
-                    actionBtn.disabled = false;
-                    actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
-                }
-            };
+                } else {
+                    // Register Mode
+                    const termsChecked = document.getElementById('terms_agree').checked;
+                    if (!termsChecked) return showNotification('Please agree to the Terms and Conditions', 'error');
 
-            window.verifyOtp = async function() {
-                const email = document.getElementById('email').value;
-                const otp = document.getElementById('otp').value;
-                const nameInput = document.getElementById('name');
-                const genderInput = document.getElementById('gender');
-                const createdByInput = document.getElementById('created_by');
-                
-                const name = nameInput ? nameInput.value : '';
-                const gender = genderInput ? genderInput.value : '';
-                const created_by = createdByInput ? createdByInput.value : '';
-                
-                if (!otp) return showNotification('Please enter OTP', 'error');
-
-                actionBtn.disabled = true;
-                actionBtn.innerText = 'Verifying...';
-
-                try {
-                    const response = await fetch("/verify-otp", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({ email, otp, name, gender, profile_created_by: created_by })
-                    });
-                    const data = await response.json();
+                    const nameInput = document.getElementById('name');
+                    const genderInput = document.getElementById('gender');
+                    const createdByInput = document.getElementById('created_by');
+                    const passwordConfirmation = document.getElementById('password_confirmation').value;
                     
-                    if (data.success) {
-                        showNotification(data.message, 'success');
-                        setTimeout(() => window.location.href = data.redirect, 800);
-                    } else {
-                        showNotification(data.message, 'error');
+                    const name = nameInput ? nameInput.value : '';
+                    const gender = genderInput ? genderInput.value : '';
+                    const created_by = createdByInput ? createdByInput.value : '';
+
+                    if (!name) {
                         actionBtn.disabled = false;
-                        actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
+                        return showNotification('Please enter name', 'error');
                     }
-                } catch (err) {
-                    showNotification('Verification failed. Check connection.', 'error');
-                    actionBtn.disabled = false;
-                    actionBtn.innerText = 'Verify & ' + (isLoginMode ? 'Login' : 'Register');
+                    
+                    // Client-side quick password validation
+                    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                        actionBtn.disabled = false;
+                        return showNotification('Password does not meet all complexity requirements.', 'error');
+                    }
+
+                    if (password !== passwordConfirmation) {
+                        actionBtn.disabled = false;
+                        return showNotification('Passwords do not match', 'error');
+                    }
+
+                    actionBtn.innerText = 'Registering...';
+                    try {
+                        const response = await fetch("{{ route('register') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                name,
+                                email,
+                                password,
+                                password_confirmation: passwordConfirmation,
+                                gender,
+                                profile_created_by: created_by
+                            })
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            showNotification('Registration successful!', 'success');
+                            setTimeout(() => window.location.href = data.redirect, 800);
+                        } else {
+                            let errMsg = data.message;
+                            if (data.errors) {
+                                const firstErrorKey = Object.keys(data.errors)[0];
+                                errMsg = data.errors[firstErrorKey][0];
+                            }
+                            showNotification(errMsg || 'Registration failed', 'error');
+                            actionBtn.disabled = false;
+                            actionBtn.innerText = 'Register Now';
+                        }
+                    } catch (err) {
+                        showNotification('Connection error. Try again.', 'error');
+                        actionBtn.disabled = false;
+                        actionBtn.innerText = 'Register Now';
+                    }
                 }
             };
 
@@ -1025,6 +1154,7 @@
                 notification.innerText = msg;
                 notification.className = `notification ${type}`;
                 notification.style.display = "block";
+                notification.style.zIndex = "100000";
                 setTimeout(() => { notification.style.display = "none"; }, 3000);
             };
 

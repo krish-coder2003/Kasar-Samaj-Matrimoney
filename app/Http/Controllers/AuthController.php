@@ -129,4 +129,61 @@ class AuthController extends Controller
         $user->update(['is_premium' => true]);
         return redirect()->route('home')->with('success', '👑 Congratulations! You are now a Premium Member. You can now view contact numbers and connect directly with matches.');
     }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => [
+                'required',
+                'string',
+                'confirmed',
+                \Illuminate\Validation\Rules\Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+            'gender' => 'required|string|in:Male,Female',
+            'profile_created_by' => 'required|string',
+        ]);
+
+        $result = $this->authService->register($request->only([
+            'name', 'email', 'password', 'gender', 'profile_created_by'
+        ]));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration successful!',
+            'redirect' => route('home')
+        ]);
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $result = $this->authService->login($request->only(['email', 'password']));
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message']
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $result['is_recovery'] 
+                ? 'Your account is scheduled for deletion. You can recover it within 24 hours.' 
+                : 'Login successful!',
+            'is_recovery' => $result['is_recovery'],
+            'redirect' => route('home')
+        ]);
+    }
 }
+

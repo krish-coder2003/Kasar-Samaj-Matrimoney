@@ -57,12 +57,22 @@
 
             <div class="form-group">
                 <label>New Password</label>
-                <input type="password" name="password" placeholder="Min. 6 characters" required>
+                <input type="password" name="password" id="password" placeholder="Min. 8 characters" required>
+                <div id="password-requirements" style="font-size: 0.8rem; color: #666; margin-top: 0.5rem; text-align: left; display: none; background: #f9f9f9; padding: 0.8rem; border-radius: 8px; border: 1px solid #eee;">
+                    <p style="margin: 0 0 4px 0; font-weight: 600;">Password must contain:</p>
+                    <ul style="padding-left: 1.2rem; margin: 0; list-style-type: none;">
+                        <li id="req-length" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least 8 characters</li>
+                        <li id="req-upper" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one uppercase letter</li>
+                        <li id="req-lower" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one lowercase letter</li>
+                        <li id="req-number" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one numeric value</li>
+                        <li id="req-special" style="color: #dc3545; transition: color 0.3s; margin: 2px 0;">✗ At least one special character</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="form-group">
                 <label>Confirm New Password</label>
-                <input type="password" name="password_confirmation" placeholder="Repeat password" required>
+                <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repeat password" required>
             </div>
 
             <button type="submit" class="btn-recovery">Reset Password</button>
@@ -72,5 +82,99 @@
             <a href="{{ route('password.request') }}" style="color: #888; text-decoration: none; font-size: 0.9rem;">Resend OTP</a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const reqList = document.getElementById('password-requirements');
+            const reqLength = document.getElementById('req-length');
+            const reqUpper = document.getElementById('req-upper');
+            const reqLower = document.getElementById('req-lower');
+            const reqNumber = document.getElementById('req-number');
+            const reqSpecial = document.getElementById('req-special');
+
+            if (passwordInput) {
+                passwordInput.addEventListener('focus', function() {
+                    reqList.style.display = 'block';
+                });
+
+                passwordInput.addEventListener('blur', function() {
+                    if (passwordInput.value === '') {
+                        reqList.style.display = 'none';
+                    }
+                });
+
+                passwordInput.addEventListener('input', function() {
+                    const val = passwordInput.value;
+
+                    // Length >= 8
+                    if (val.length >= 8) {
+                        reqLength.style.color = '#28a745';
+                        reqLength.innerHTML = '✓ At least 8 characters';
+                    } else {
+                        reqLength.style.color = '#dc3545';
+                        reqLength.innerHTML = '✗ At least 8 characters';
+                    }
+
+                    // Uppercase
+                    if (/[A-Z]/.test(val)) {
+                        reqUpper.style.color = '#28a745';
+                        reqUpper.innerHTML = '✓ At least one uppercase letter';
+                    } else {
+                        reqUpper.style.color = '#dc3545';
+                        reqUpper.innerHTML = '✗ At least one uppercase letter';
+                    }
+
+                    // Lowercase
+                    if (/[a-z]/.test(val)) {
+                        reqLower.style.color = '#28a745';
+                        reqLower.innerHTML = '✓ At least one lowercase letter';
+                    } else {
+                        reqLower.style.color = '#dc3545';
+                        reqLower.innerHTML = '✗ At least one lowercase letter';
+                    }
+
+                    // Number
+                    if (/[0-9]/.test(val)) {
+                        reqNumber.style.color = '#28a745';
+                        reqNumber.innerHTML = '✓ At least one numeric value';
+                    } else {
+                        reqNumber.style.color = '#dc3545';
+                        reqNumber.innerHTML = '✗ At least one numeric value';
+                    }
+
+                    // Special character
+                    if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) {
+                        reqSpecial.style.color = '#28a745';
+                        reqSpecial.innerHTML = '✓ At least one special character';
+                    } else {
+                        reqSpecial.style.color = '#dc3545';
+                        reqSpecial.innerHTML = '✗ At least one special character';
+                    }
+                });
+            }
+
+            // Client side validation on form submission
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const val = passwordInput.value;
+                    const confirmationInput = document.getElementById('password_confirmation');
+                    
+                    if (val.length < 8 || !/[A-Z]/.test(val) || !/[a-z]/.test(val) || !/[0-9]/.test(val) || !/[!@#$%^&*(),.?":{}|<>]/.test(val)) {
+                        e.preventDefault();
+                        alert('Password does not meet all complexity requirements.');
+                        return;
+                    }
+                    
+                    if (confirmationInput && val !== confirmationInput.value) {
+                        e.preventDefault();
+                        alert('Passwords do not match.');
+                        return;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
