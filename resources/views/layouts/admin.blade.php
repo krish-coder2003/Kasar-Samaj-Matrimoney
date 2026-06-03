@@ -98,8 +98,8 @@
         .btn-primary-admin:hover { background: #a00000; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(128, 0, 0, 0.2); }
         
         /* Visibility classes */
-        .desktop-only { display: block; }
-        .mobile-only { display: none; }
+        .desktop-only { display: block !important; }
+        .mobile-only { display: none !important; }
 
         @media (max-width: 1024px) {
             body { flex-direction: column !important; }
