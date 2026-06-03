@@ -15,7 +15,7 @@
         @guest
             <a href="{{ route('home') }}#about"><i class="fas fa-info-circle"></i> About</a>
             <a href="{{ route('home') }}#stories"><i class="fas fa-heart"></i> Success Stories</a>
-            <a href="#" onclick="typeof openModal === 'function' ? openModal() : window.location.href='{{ route('login') }}'" class="hidden-desktop">
+            <a href="#" onclick="event.preventDefault(); (typeof window.openModal === 'function' && window.openModal()) ? null : window.location.href='{{ route('login') }}'" class="hidden-desktop">
                 <i class="fas fa-sign-in-alt"></i> Login / Register
             </a>
         @endguest
@@ -38,7 +38,7 @@
 
     <div class="header-actions">
         @guest
-            <a href="#" id="login-btn-header" class="btn-premium-nav" onclick="typeof openModal === 'function' ? openModal() : window.location.href='{{ route('login') }}'">
+            <a href="#" id="login-btn-header" class="btn-premium-nav" onclick="event.preventDefault(); (typeof window.openModal === 'function' && window.openModal()) ? null : window.location.href='{{ route('login') }}'">
                 <i class="fas fa-sign-in-alt"></i> Login / Register
             </a>
         @else
@@ -85,7 +85,7 @@
     });
 
     // Unified Mobile Menu Logic
-    document.addEventListener('DOMContentLoaded', function() {
+    window.onPageLoad(function() {
         const mobileMenu = document.getElementById('mobile-menu');
         const closeMenu = document.getElementById('close-menu');
         const navLinks = document.querySelector('.nav-links');
@@ -145,7 +145,7 @@
 
 @auth
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    window.onPageLoad(function() {
         const bell = document.getElementById('notification-bell');
         const dropdown = document.getElementById('notification-dropdown');
         const unreadBadge = document.getElementById('unread-count');

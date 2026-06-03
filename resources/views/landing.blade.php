@@ -627,7 +627,7 @@
     @endphp
     @guest
     <section class="hero" style="{{ $heroStyle }}">
-        <button class="btn-primary" onclick="openModal()">Get Started & Find Your Match</button>
+        <button class="btn-primary" onclick="window.openModal()">Get Started & Find Your Match</button>
     </section>
     @endguest
 
@@ -782,13 +782,13 @@
         <div class="modal-content" style="width: 95%; max-width: 500px; padding: 0; border-radius: 24px; overflow: hidden; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); margin: auto; position: relative; max-height: 90vh; overflow-y: auto;">
             <!-- Modal Header -->
             <div style="padding: 2.5rem; background: white; position: relative;">
-                <span class="close" onclick="closeModal()" style="top: 20px; right: 25px; font-size: 24px; font-weight: 300;">&times;</span>
+                <span class="close" onclick="window.closeModal()" style="top: 20px; right: 25px; font-size: 24px; font-weight: 300;">&times;</span>
                 <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem; color: #1a1a1a; font-family: 'Playfair Display', serif;">Register Now &</h2>
                 <p style="font-size: 1.2rem; color: #444; margin-bottom: 1.5rem;">Find your perfect life partner</p>
                 
                 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 2rem;">
                     <span style="font-size: 0.9rem; color: #666;">Already a member?</span>
-                    <button onclick="toggleLoginMode()" id="toggle-btn" style="padding: 8px 20px; border-radius: 50px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; transition: 0.3s;">Log In</button>
+                    <button onclick="window.toggleLoginMode()" id="toggle-btn" style="padding: 8px 20px; border-radius: 50px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-weight: 600; cursor: pointer; transition: 0.3s;">Log In</button>
                 </div>
 
                 <div id="registration-form">
@@ -805,8 +805,8 @@
                     <div class="form-group">
                         <label style="font-size: 0.9rem; color: #444; margin-bottom: 0.8rem; font-weight: 600;">Select Gender</label>
                         <div class="gender-container" style="display: flex; gap: 15px;">
-                            <button type="button" onclick="setGender('Male')" class="gender-btn active" id="gender-male" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Male</button>
-                            <button type="button" onclick="setGender('Female')" class="gender-btn" id="gender-female" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Female</button>
+                            <button type="button" onclick="window.setGender('Male')" class="gender-btn active" id="gender-male" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Male</button>
+                            <button type="button" onclick="window.setGender('Female')" class="gender-btn" id="gender-female" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; transition: 0.3s; font-weight: 600;">Female</button>
                             <input type="hidden" id="gender" value="Male">
                         </div>
                     </div>
@@ -845,7 +845,7 @@
                     </label>
                 </div>
 
-                <button class="btn-primary btn-block" id="action-btn" onclick="submitAuth()" style="padding: 1.2rem; border-radius: 12px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);">Register Now</button>
+                <button class="btn-primary btn-block" id="action-btn" onclick="window.submitAuth()" style="padding: 1.2rem; border-radius: 12px; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);">Register Now</button>
 
                 <p style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem;">
                     <a href="{{ route('password.request') }}" id="forgot-password-link" style="color: var(--primary); text-decoration: none; display: none; font-weight: 600;">Forgot Password?</a>
@@ -875,7 +875,7 @@
     @include('partials.footer')
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageLoad(function() {
             // State Variables
             let isLoginMode = false;
             const modal = document.getElementById("loginModal");
@@ -886,30 +886,27 @@
             const modalTitle = document.querySelector('#loginModal h2');
             const modalSub = document.querySelector('#loginModal p');
 
-            // Auto-popup logic
-            @guest
-                setTimeout(() => {
-                    if (!sessionStorage.getItem('popupShown')) {
-                        openModal();
-                        sessionStorage.setItem('popupShown', 'true');
-                    }
-                }, 3000);
-            @endguest
+            // Define functions locally
+            function openModal() {
+                const modalEl = document.getElementById("loginModal");
+                if (modalEl) {
+                    modalEl.style.display = "flex";
+                    return true;
+                }
+                return false;
+            }
 
-            // Modal Functions
-            window.openModal = function() {
-                if (modal) modal.style.display = "flex";
-            };
-
-            window.closeModal = function() {
-                if (modal) modal.style.display = "none";
+            function closeModal() {
+                const modalEl = document.getElementById("loginModal");
+                if (modalEl) modalEl.style.display = "none";
                 resetModal();
-            };
+            }
 
-            window.resetModal = function() {
-                if (actionBtn) {
-                    actionBtn.disabled = false;
-                    actionBtn.innerText = isLoginMode ? 'Log In' : 'Register Now';
+            function resetModal() {
+                const actionBtnEl = document.getElementById('action-btn');
+                if (actionBtnEl) {
+                    actionBtnEl.disabled = false;
+                    actionBtnEl.innerText = isLoginMode ? 'Log In' : 'Register Now';
                 }
                 const emailInput = document.getElementById('email');
                 const passwordInput = document.getElementById('password');
@@ -920,36 +917,41 @@
                 if (passwordInput) passwordInput.value = '';
                 if (passwordConfirmation) passwordConfirmation.value = '';
                 if (reqList) reqList.style.display = 'none';
-            };
+            }
 
-            window.toggleLoginMode = function() {
+            function toggleLoginMode() {
                 isLoginMode = !isLoginMode;
+                const regFormEl = document.getElementById('registration-form');
                 const confirmGroup = document.getElementById('confirm-password-group');
                 const termsGroup = document.getElementById('terms-group');
                 const forgotLink = document.getElementById('forgot-password-link');
                 const reqList = document.getElementById('password-requirements');
+                const actionBtnEl = document.getElementById('action-btn');
+                const toggleBtnEl = document.getElementById('toggle-btn');
+                const modalTitleEl = document.querySelector('#loginModal h2');
+                const modalSubEl = document.querySelector('#loginModal p');
 
                 if (isLoginMode) {
-                    regForm.style.display = 'none';
+                    if (regFormEl) regFormEl.style.display = 'none';
                     if (confirmGroup) confirmGroup.style.display = 'none';
                     if (termsGroup) termsGroup.style.display = 'none';
                     if (forgotLink) forgotLink.style.display = 'inline-block';
                     if (reqList) reqList.style.display = 'none';
                     
-                    actionBtn.innerText = 'Log In';
-                    toggleBtn.innerText = 'Register';
-                    modalTitle.innerText = 'Welcome Back';
-                    modalSub.innerText = 'Log in to find your partner';
+                    if (actionBtnEl) actionBtnEl.innerText = 'Log In';
+                    if (toggleBtnEl) toggleBtnEl.innerText = 'Register';
+                    if (modalTitleEl) modalTitleEl.innerText = 'Welcome Back';
+                    if (modalSubEl) modalSubEl.innerText = 'Log in to find your partner';
                 } else {
-                    regForm.style.display = 'block';
+                    if (regFormEl) regFormEl.style.display = 'block';
                     if (confirmGroup) confirmGroup.style.display = 'block';
                     if (termsGroup) termsGroup.style.display = 'flex';
                     if (forgotLink) forgotLink.style.display = 'none';
                     
-                    actionBtn.innerText = 'Register Now';
-                    toggleBtn.innerText = 'Log In';
-                    modalTitle.innerText = 'Register Now &';
-                    modalSub.innerText = 'Find your perfect life partner';
+                    if (actionBtnEl) actionBtnEl.innerText = 'Register Now';
+                    if (toggleBtnEl) toggleBtnEl.innerText = 'Log In';
+                    if (modalTitleEl) modalTitleEl.innerText = 'Register Now &';
+                    if (modalSubEl) modalSubEl.innerText = 'Find your perfect life partner';
                 }
                 
                 // Clear fields on toggle
@@ -960,14 +962,14 @@
                 if (emailInput) emailInput.value = '';
                 if (passwordInput) passwordInput.value = '';
                 if (passwordConfirmation) passwordConfirmation.value = '';
-            };
+            }
 
-            window.setGender = function(gender) {
+            function setGender(gender) {
                 document.getElementById('gender').value = gender;
                 document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
                 if (gender === 'Male') document.getElementById('gender-male').classList.add('active');
                 else document.getElementById('gender-female').classList.add('active');
-            };
+            }
 
             // Password Real-time Validator
             const passwordInput = document.getElementById('password');
@@ -1043,17 +1045,17 @@
             }
 
             // Password Authentication Submit Logic
-            window.submitAuth = async function() {
+            async function submitAuth() {
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
 
                 if (!email) return showNotification('Please enter email', 'error');
                 if (!password) return showNotification('Please enter password', 'error');
 
-                actionBtn.disabled = true;
+                if (actionBtn) actionBtn.disabled = true;
 
                 if (isLoginMode) {
-                    actionBtn.innerText = 'Logging in...';
+                    if (actionBtn) actionBtn.innerText = 'Logging in...';
                     try {
                         const response = await fetch("{{ route('login.submit') }}", {
                             method: 'POST',
@@ -1071,13 +1073,17 @@
                             setTimeout(() => window.location.href = data.redirect, 800);
                         } else {
                             showNotification(data.message || 'Invalid credentials', 'error');
-                            actionBtn.disabled = false;
-                            actionBtn.innerText = 'Log In';
+                            if (actionBtn) {
+                                actionBtn.disabled = false;
+                                actionBtn.innerText = 'Log In';
+                            }
                         }
                     } catch (err) {
                         showNotification('Connection error. Try again.', 'error');
-                        actionBtn.disabled = false;
-                        actionBtn.innerText = 'Log In';
+                        if (actionBtn) {
+                            actionBtn.disabled = false;
+                            actionBtn.innerText = 'Log In';
+                        }
                     }
                 } else {
                     // Register Mode
@@ -1094,22 +1100,22 @@
                     const created_by = createdByInput ? createdByInput.value : '';
 
                     if (!name) {
-                        actionBtn.disabled = false;
+                        if (actionBtn) actionBtn.disabled = false;
                         return showNotification('Please enter name', 'error');
                     }
                     
                     // Client-side quick password validation
                     if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                        actionBtn.disabled = false;
+                        if (actionBtn) actionBtn.disabled = false;
                         return showNotification('Password does not meet all complexity requirements.', 'error');
                     }
 
                     if (password !== passwordConfirmation) {
-                        actionBtn.disabled = false;
+                        if (actionBtn) actionBtn.disabled = false;
                         return showNotification('Passwords do not match', 'error');
                     }
 
-                    actionBtn.innerText = 'Registering...';
+                    if (actionBtn) actionBtn.innerText = 'Registering...';
                     try {
                         const response = await fetch("{{ route('register') }}", {
                             method: 'POST',
@@ -1138,32 +1144,62 @@
                                 errMsg = data.errors[firstErrorKey][0];
                             }
                             showNotification(errMsg || 'Registration failed', 'error');
-                            actionBtn.disabled = false;
-                            actionBtn.innerText = 'Register Now';
+                            if (actionBtn) {
+                                actionBtn.disabled = false;
+                                actionBtn.innerText = 'Register Now';
+                            }
                         }
                     } catch (err) {
                         showNotification('Connection error. Try again.', 'error');
-                        actionBtn.disabled = false;
-                        actionBtn.innerText = 'Register Now';
+                        if (actionBtn) {
+                            actionBtn.disabled = false;
+                            actionBtn.innerText = 'Register Now';
+                        }
                     }
                 }
-            };
+            }
 
-            window.showNotification = function(msg, type) {
+            function showNotification(msg, type) {
                 if (!notification) return;
                 notification.innerText = msg;
                 notification.className = `notification ${type}`;
                 notification.style.display = "block";
                 notification.style.zIndex = "100000";
                 setTimeout(() => { notification.style.display = "none"; }, 3000);
-            };
+            }
+
+            // Expose functions globally on window object
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+            window.resetModal = resetModal;
+            window.toggleLoginMode = toggleLoginMode;
+            window.setGender = setGender;
+            window.submitAuth = submitAuth;
+            window.showNotification = showNotification;
+
+            // Auto-popup logic
+            @guest
+                @if(request()->has('show_login'))
+                    setTimeout(() => {
+                        openModal();
+                        toggleLoginMode();
+                    }, 100);
+                @else
+                    setTimeout(() => {
+                        if (!sessionStorage.getItem('popupShown')) {
+                            openModal();
+                            sessionStorage.setItem('popupShown', 'true');
+                        }
+                    }, 3000);
+                @endif
+            @endguest
 
             // Global Click Listeners
             window.onclick = function(event) {
                 if (event.target == modal) closeModal();
             };
 
-            document.getElementById('login-btn')?.addEventListener('click', openModal);
+            document.getElementById('login-btn-header')?.addEventListener('click', openModal);
         });
 
         // Other utility functions

@@ -122,9 +122,20 @@
             .desktop-only { display: none !important; }
             .mobile-only { display: block !important; }
         }
-        
-        @yield('styles')
     </style>
+    
+    <!-- Unified Page Loader (DOMContentLoaded wrapper) -->
+    <script>
+        window.onPageLoad = function(fn) {
+            if (document.readyState !== 'loading') {
+                fn();
+            } else {
+                document.addEventListener('DOMContentLoaded', fn);
+            }
+        };
+    </script>
+    
+    @yield('styles')
 </head>
 <body>
     <div class="sidebar">

@@ -15,6 +15,17 @@
     <link rel="stylesheet" href="/css/style.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
+    <!-- Unified Page Loader (DOMContentLoaded wrapper) -->
+    <script>
+        window.onPageLoad = function(fn) {
+            if (document.readyState !== 'loading') {
+                fn();
+            } else {
+                document.addEventListener('DOMContentLoaded', fn);
+            }
+        };
+    </script>
+    
     @yield('styles')
 </head>
 <body>

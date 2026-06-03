@@ -84,7 +84,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.onPageLoad(function() {
             const passwordInput = document.getElementById('password');
             const reqList = document.getElementById('password-requirements');
             const reqLength = document.getElementById('req-length');

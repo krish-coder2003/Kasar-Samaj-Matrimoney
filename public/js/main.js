@@ -1,5 +1,5 @@
 // Mobile Menu Toggle & Common UI Logic
-document.addEventListener('DOMContentLoaded', () => {
+window.onPageLoad(() => {
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenu = document.getElementById('close-menu');
     const navLinks = document.querySelector('.nav-links');

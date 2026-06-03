@@ -8,7 +8,7 @@ use App\Http\Controllers\RecoveryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthController::class, 'index'])->name('home');
-Route::get('/login', function() { return redirect()->route('home'); })->name('login');
+Route::get('/login', function() { return redirect()->route('home', ['show_login' => 1]); })->name('login');
 Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send.otp');
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
