@@ -212,6 +212,53 @@
                 text-decoration: none;
                 margin-right: 1rem;
             }
+        /* Image Lightbox Styles */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .lightbox-modal.open {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .lightbox-modal.open .lightbox-content {
+            transform: scale(1);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+        }
+        .lightbox-close:hover {
+            color: #ccc;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -270,7 +317,7 @@
                             @endif
                             @if($msg->file_path)
                                 @if($msg->file_type == 'image')
-                                    <img src="{{ asset('storage/'.$msg->file_path) }}" class="message-file" onclick="window.open(this.src)">
+                                    <img src="{{ asset('storage/'.$msg->file_path) }}" class="message-file" onclick="window.openLightbox(this.src)">
                                 @else
                                     <div class="message-file">
                                         <a href="{{ asset('storage/'.$msg->file_path) }}" target="_blank" style="color: inherit;">📄 View PDF Document</a>
@@ -311,6 +358,12 @@
                 </div>
             @endif
         </div>
+    </div>
+
+    <!-- Chat Image Lightbox Modal -->
+    <div id="lightboxModal" class="lightbox-modal" onclick="window.closeLightbox()">
+        <span class="lightbox-close" onclick="window.closeLightbox()">&times;</span>
+        <img class="lightbox-content" id="lightboxImage" onclick="event.stopPropagation()">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
@@ -355,6 +408,22 @@
                 if (fileInput) fileInput.value = '';
                 if (filePreview) filePreview.style.display = 'none';
                 if (previewImg) previewImg.src = '';
+            };
+
+            window.openLightbox = function(src) {
+                const lightboxModal = document.getElementById('lightboxModal');
+                const lightboxImage = document.getElementById('lightboxImage');
+                if (lightboxModal && lightboxImage) {
+                    lightboxImage.src = src;
+                    lightboxModal.classList.add('open');
+                }
+            };
+
+            window.closeLightbox = function() {
+                const lightboxModal = document.getElementById('lightboxModal');
+                if (lightboxModal) {
+                    lightboxModal.classList.remove('open');
+                }
             };
 
             window.sendMessage = async function() {
@@ -444,7 +513,7 @@
                 if (msg.file_path || msg.file_blob) {
                     const url = msg.file_blob || `/storage/${msg.file_path}`;
                     if (msg.file_type === 'image') {
-                        fileHtml = `<img src="${url}" class="message-file" onclick="window.open(this.src)">`;
+                        fileHtml = `<img src="${url}" class="message-file" onclick="window.openLightbox(this.src)">`;
                     } else {
                         fileHtml = `<a href="${url}" target="_blank" class="message-file-link">📄 View PDF Document</a>`;
                     }

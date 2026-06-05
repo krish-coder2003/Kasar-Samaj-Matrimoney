@@ -28,6 +28,17 @@
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+
+        .detail-modal.open {
+            opacity: 1;
+            visibility: visible;
         }
 
         .detail-content {
@@ -38,6 +49,12 @@
             border: 1px solid rgba(255,255,255,0.1);
             max-width: 1100px;
             box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            transform: scale(0.9) translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .detail-modal.open .detail-content {
+            transform: scale(1) translateY(0);
         }
 
         .detail-grid {
@@ -576,52 +593,33 @@
             </form>
         </div>
 
-        <div class="matches-grid">
+        <div class="matches-grid" id="matches-grid">
             @forelse($matches as $match)
-                <div class="match-card">
-                    @php
-                        $p = $match->profile;
-                        $photos = array_filter([$p->photo1, $p->photo2, $p->photo3]);
-                        $mainPhoto = !empty($photos) ? asset('storage/' . $photos[0]) : 'https://ui-avatars.com/api/?name=' . urlencode($match->name) . '&background=800000&color=fff&size=300';
-                    @endphp
-                    <div class="match-photo" id="main-photo-{{ $match->id }}" style="background-image: url('{{ $mainPhoto }}'); position: relative;">
-                        <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="window.toggleLike({{ $match->id }}, event)" id="like-{{ $match->id }}">
-                            <i class="{{ in_array($match->id, $likedUserIds) ? 'fas' : 'far' }} fa-heart"></i>
-                        </div>
-                    </div>
-                    
-                    @if(count($photos) > 1)
-                        <div class="photo-thumbnails">
-                            @foreach($photos as $photo)
-                                <div class="thumb" style="background-image: url('{{ asset('storage/' . $photo) }}');" onclick="changePhoto({{ $match->id }}, '{{ asset('storage/' . $photo) }}')"></div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    <div class="match-info">
-                        <h4>
-                            {{ $match->name }}
-                            @if($match->profile->is_verified)
-                                <span class="verified-badge {{ $match->is_premium ? 'gold' : '' }}" title="Verified Profile">
-                                    <i class="fas fa-check"></i>
-                                </span>
-                            @endif
-                        </h4>
-                        <div class="match-details">
-                            <span><i class="fas fa-birthday-cake"></i> Age: {{ \Carbon\Carbon::parse($match->profile->dob)->age ?? 'N/A' }} yrs</span>
-                            <span><i class="fas fa-graduation-cap"></i> Education: {{ $match->profile->education ?? 'N/A' }}</span>
-                            <span><i class="fas fa-briefcase"></i> Occupation: {{ $match->profile->occupation ?? 'N/A' }}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> City: {{ $match->profile->city ?? 'N/A' }}, {{ $match->profile->state ?? 'N/A' }}</span>
-                        </div>
-                        <button class="btn-primary btn-block" style="padding: 0.5rem;" onclick="window.openDetailModal({{ json_encode($match) }}, {{ json_encode($photos) }}, {{ Auth::user()->is_premium ? 'true' : 'false' }}, {{ in_array($match->id, $sentInterestIds) ? 'true' : 'false' }})"><i class="fas fa-eye"></i> View Full Profile</button>
-                    </div>
-                </div>
+                @include('partials.match-card', ['match' => $match])
             @empty
-                <div class="full-width" style="text-align: center; grid-column: 1 / -1;">
+                <div class="full-width" id="no-matches-msg" style="text-align: center; grid-column: 1 / -1;">
                     <p>No matches found currently. Please check back later or update your preferences.</p>
                 </div>
             @endforelse
         </div>
+
+        <!-- Scroll Loader & Sentinel -->
+        <div id="scroll-loader" class="scroll-loader-container" style="display: none; margin-top: 2rem;">
+            <div class="matches-grid">
+                @for ($i = 0; $i < 4; $i++)
+                    <div class="skeleton-card">
+                        <div class="skeleton-photo shimmer"></div>
+                        <div class="skeleton-info">
+                            <div class="skeleton-line skeleton-title shimmer"></div>
+                            <div class="skeleton-line skeleton-detail shimmer"></div>
+                            <div class="skeleton-line skeleton-detail shimmer" style="width: 50%;"></div>
+                            <div class="skeleton-button shimmer"></div>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </div>
+        <div id="infinite-scroll-sentinel" style="height: 10px; margin-bottom: 20px;"></div>
     </section>
     @endauth
 
@@ -1168,9 +1166,72 @@
             // Global Click Listeners
             window.onclick = function(event) {
                 if (event.target == modal) window.closeModal();
+                const detailModal = document.getElementById('detailModal');
+                if (event.target == detailModal) window.closeDetailModal();
             };
 
             document.getElementById('login-btn')?.addEventListener('click', window.openModal);
+
+            // Infinite Scroll setup
+            (function() {
+                const sentinel = document.getElementById('infinite-scroll-sentinel');
+                const grid = document.getElementById('matches-grid');
+                const loader = document.getElementById('scroll-loader');
+                
+                if (!sentinel || !grid) return;
+
+                let nextPage = 2;
+                let hasMore = {{ (isset($matches) && method_exists($matches, 'hasMorePages')) ? ($matches->hasMorePages() ? 'true' : 'false') : 'false' }};
+                let isLoading = false;
+
+                const observer = new IntersectionObserver((entries) => {
+                    const entry = entries[0];
+                    if (entry.isIntersecting && hasMore && !isLoading) {
+                        loadMore();
+                    }
+                }, {
+                    rootMargin: '200px'
+                });
+
+                observer.observe(sentinel);
+
+                async function loadMore() {
+                    isLoading = true;
+                    if (loader) loader.style.display = 'block';
+                    
+                    try {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('page', nextPage);
+                        
+                        const response = await fetch(url.toString(), {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        
+                        const data = await response.json();
+                        
+                        if (data.html) {
+                            grid.insertAdjacentHTML('beforeend', data.html);
+                            nextPage++;
+                            hasMore = data.hasMore;
+                        } else {
+                            hasMore = false;
+                        }
+                    } catch (err) {
+                        console.error('Error fetching next page of matches:', err);
+                    } finally {
+                        isLoading = false;
+                        if (loader) loader.style.display = 'none';
+                        if (!hasMore) {
+                            observer.unobserve(sentinel);
+                        }
+                    }
+                }
+            })();
         });
 
         // Other utility functions - Attaching to window for onclick compatibility
@@ -1273,12 +1334,13 @@
             personalityDiv.innerHTML = (profile.describe_words || profile.interests) ? personalityHtml : 'No personality details provided.';
             document.getElementById('about-me-section').innerText = profile.about_me || 'This user has not written a detailed description yet.';
 
-            detailModal.style.display = "flex";
-            detailModal.style.alignItems = "center";
-            detailModal.style.justifyContent = "center";
+            detailModal.classList.add('open');
         }
 
-        window.closeDetailModal = function() { document.getElementById("detailModal").style.display = "none"; }
+        window.closeDetailModal = function() {
+            const detailModal = document.getElementById("detailModal");
+            if (detailModal) detailModal.classList.remove('open');
+        }
 
         window.sendInterest = async function() {
             const receiverId = document.getElementById('detail-user-id').value;
@@ -1322,7 +1384,7 @@
                     if (data.message.includes('premium')) setTimeout(() => window.location.href = "{{ route('plans') }}", 1500);
                 }
             });
-        }
+        };
     </script>
 </body>
 </html>

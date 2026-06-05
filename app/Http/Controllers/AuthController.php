@@ -49,7 +49,7 @@ class AuthController extends Controller
                 });
             }
 
-            $matches = $query->with('profile')->get();
+            $matches = $query->with('profile')->paginate(8);
 
             $sentInterestIds = \App\Models\Interest::where('sender_id', $user->id)
                 ->pluck('receiver_id')
@@ -58,6 +58,17 @@ class AuthController extends Controller
             $likedUserIds = \App\Models\Like::where('user_id', $user->id)
                 ->pluck('liked_user_id')
                 ->toArray();
+
+            if ($request->ajax()) {
+                $html = '';
+                foreach ($matches as $match) {
+                    $html .= view('partials.match-card', compact('match', 'likedUserIds', 'sentInterestIds'))->render();
+                }
+                return response()->json([
+                    'html' => $html,
+                    'hasMore' => $matches->hasMorePages()
+                ]);
+            }
 
             $stories = \App\Models\SuccessStory::latest()->take(3)->get();
             $faqs = \App\Models\Faq::latest()->get();
