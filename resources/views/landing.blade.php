@@ -892,12 +892,20 @@
 
             // Auto-popup logic
             @guest
-                setTimeout(() => {
-                    if (!sessionStorage.getItem('popupShown')) {
-                        window.openModal();
-                        sessionStorage.setItem('popupShown', 'true');
+                const hasPasswordResetSuccess = @json(session('success') && str_contains(session('success'), 'Password reset successfully'));
+                if (hasPasswordResetSuccess) {
+                    if (!isLoginMode) {
+                        window.toggleLoginMode();
                     }
-                }, 3000);
+                    window.openModal();
+                } else {
+                    setTimeout(() => {
+                        if (!sessionStorage.getItem('popupShown')) {
+                            window.openModal();
+                            sessionStorage.setItem('popupShown', 'true');
+                        }
+                    }, 3000);
+                }
             @endguest
 
             // Modal Functions
