@@ -129,10 +129,10 @@
         </div>
 
         <div class="plans-grid">
-            <!-- Basic Plan -->
+            <!-- Free Plan -->
             <div class="plan-card">
-                <div class="plan-name">Basic</div>
-                <div class="plan-price">Free</div>
+                <div class="plan-name">Free Plan</div>
+                <div class="plan-price">₹0 <span>/ Free</span></div>
                 <ul class="plan-features">
                     <li><i class="fas fa-user-plus"></i> Create Profile</li>
                     <li><i class="fas fa-camera"></i> Add 3 Photos</li>
@@ -141,44 +141,34 @@
                     <li class="disabled"><i class="fas fa-mobile-alt"></i> Direct Calling</li>
                     <li class="disabled"><i class="fas fa-rocket"></i> Profile Boosting</li>
                 </ul>
-                <button class="plan-btn" style="background: #eee; color: #777; cursor: default;">Current Plan</button>
+                @if(!Auth::user()->is_premium)
+                    <button class="plan-btn" style="background: #eee; color: #777; cursor: default; border: none;">Current Plan</button>
+                @else
+                    <button class="plan-btn" style="background: #eee; color: #777; cursor: default; border: none;">Standard Member</button>
+                @endif
             </div>
 
             <!-- Gold Plan -->
             <div class="plan-card featured">
                 <div class="badge">POPULAR</div>
-                <div class="plan-name">Gold Member</div>
-                <div class="plan-price">₹1,499 <span>/ 3 Months</span></div>
+                <div class="plan-name">Gold Plan</div>
+                <div class="plan-price">₹{{ number_format(\App\Models\Setting::get('gold_plan_price', 1000)) }} <span>/ Lifetime</span></div>
                 <ul class="plan-features">
-                    <li><i class="fas fa-check-double"></i> Everything in Basic</li>
+                    <li><i class="fas fa-check-double"></i> Everything in Free Plan</li>
                     <li><i class="fas fa-id-card"></i> View Contact Numbers</li>
                     <li><i class="fas fa-phone-volume"></i> Direct Calling Feature</li>
                     <li><i class="fas fa-paper-plane"></i> Send Unlimited Interests</li>
                     <li><i class="fas fa-certificate"></i> Blue Verification Badge</li>
-                    <li class="disabled"><i class="fas fa-crown"></i> Elite Spotlight Boosting</li>
-                </ul>
-                <form action="{{ route('upgrade') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="plan-btn btn-primary" style="background: var(--secondary); border-color: var(--secondary);">Upgrade to Gold</button>
-                </form>
-            </div>
-
-            <!-- Platinum Plan -->
-            <div class="plan-card">
-                <div class="plan-name">Platinum</div>
-                <div class="plan-price">₹2,999 <span>/ 6 Months</span></div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check-double"></i> Everything in Gold</li>
                     <li><i class="fas fa-crown"></i> Elite Spotlight Boosting</li>
-                    <li><i class="fas fa-arrow-up"></i> Top Search Results</li>
-                    <li><i class="fas fa-user-tie"></i> Personal Relationship Manager</li>
-                    <li><i class="fas fa-bolt"></i> Express Interests</li>
-                    <li><i class="fas fa-calendar-star"></i> Access to Private Events</li>
                 </ul>
-                <form action="{{ route('upgrade') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="plan-btn btn-primary">Upgrade to Platinum</button>
-                </form>
+                @if(Auth::user()->is_premium)
+                    <button class="plan-btn" style="background: #800000; color: white; cursor: default; border: none;">Current Plan (👑 Premium)</button>
+                @else
+                    <form action="{{ route('upgrade') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="plan-btn btn-primary" style="background: var(--secondary); border-color: var(--secondary); border: none;">Upgrade to Gold</button>
+                    </form>
+                @endif
             </div>
         </div>
 

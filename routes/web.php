@@ -23,7 +23,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/about', [ProfileController::class, 'updateAbout'])->name('profile.about.update');
     Route::delete('/profile/photo/{index}', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
     Route::get('/plans', [ProfileController::class, 'plans'])->name('plans');
-    Route::post('/upgrade', [AuthController::class, 'upgrade'])->name('upgrade');
+    Route::post('/upgrade', [\App\Http\Controllers\PaymentController::class, 'initiatePayment'])->name('upgrade');
+    Route::get('/checkout/{payment}', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('payment.checkout');
+    Route::post('/payment/verify', [\App\Http\Controllers\PaymentController::class, 'verifyPayment'])->name('payment.verify');
     Route::get('/interests', [InterestController::class, 'index'])->name('interests.index');
     Route::post('/interests/{interest}', [InterestController::class, 'update'])->name('interests.update');
     Route::delete('/interests/{interest}', [InterestController::class, 'destroy'])->name('interests.destroy');
@@ -72,6 +74,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users/{user}/edit', [\App\Http\Controllers\AdminController::class, 'editUser'])->name('users.edit');
     Route::post('/users/{user}/update', [\App\Http\Controllers\AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{user}', [\App\Http\Controllers\AdminController::class, 'deleteUser'])->name('users.delete');
+    
+    // Membership Management
+    Route::get('/memberships', [\App\Http\Controllers\AdminController::class, 'memberships'])->name('memberships');
+    Route::post('/memberships/plan/update', [\App\Http\Controllers\AdminController::class, 'updatePlanPrice'])->name('memberships.plan.update');
+    Route::post('/memberships/user/{user}/approve', [\App\Http\Controllers\AdminController::class, 'approvePremium'])->name('memberships.user.approve');
+    Route::post('/memberships/user/{user}/reject', [\App\Http\Controllers\AdminController::class, 'rejectPremium'])->name('memberships.user.reject');
+    Route::post('/memberships/payment/{payment}/approve', [\App\Http\Controllers\AdminController::class, 'approvePayment'])->name('memberships.payment.approve');
+    Route::post('/memberships/payment/{payment}/reject', [\App\Http\Controllers\AdminController::class, 'rejectPayment'])->name('memberships.payment.reject');
+
     Route::get('/settings', [\App\Http\Controllers\AdminController::class, 'settings'])->name('settings');
     Route::get('/legal', [\App\Http\Controllers\AdminController::class, 'legal'])->name('legal');
     Route::post('/settings', [\App\Http\Controllers\AdminController::class, 'updateSettings'])->name('settings.update');

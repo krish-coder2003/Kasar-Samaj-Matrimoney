@@ -146,6 +146,9 @@
             <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users') ? 'active' : '' }}">
                 <i class="fas fa-users"></i> Manage Users
             </a>
+            <a href="{{ route('admin.memberships') }}" class="{{ request()->routeIs('admin.memberships*') ? 'active' : '' }}">
+                <i class="fas fa-credit-card"></i> Memberships
+            </a>
             <a href="{{ route('admin.verifications') }}" class="{{ request()->routeIs('admin.verifications') ? 'active' : '' }}">
                 <i class="fas fa-id-card"></i> Verifications
             </a>

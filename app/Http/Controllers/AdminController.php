@@ -223,4 +223,88 @@ class AdminController extends Controller
         ]);
         return back()->with('success', "Profile of {$profile->user->name} has been rejected.");
     }
+
+    // Membership Management Dashboard
+    public function memberships()
+    {
+        $payments = \App\Models\Payment::with('user')->orderBy('created_at', 'desc')->get();
+        
+        // Fetch premium users (non-admins)
+        $premiumUsers = \App\Models\User::where('is_premium', true)
+            ->where('role', '!=', 'admin')
+            ->with('profile')
+            ->latest()
+            ->get();
+            
+        // Fetch standard users (non-admins)
+        $standardUsers = \App\Models\User::where('is_premium', false)
+            ->where('role', '!=', 'admin')
+            ->with('profile')
+            ->latest()
+            ->get();
+
+        return view('admin.memberships.index', compact('payments', 'premiumUsers', 'standardUsers'));
+    }
+
+    // Change Gold Plan price
+    public function updatePlanPrice(Request $request)
+    {
+        $request->validate([
+            'gold_plan_price' => 'required|numeric|min:0',
+        ]);
+
+        \App\Models\Setting::set('gold_plan_price', $request->gold_plan_price);
+
+        return back()->with('success', 'Gold Plan price updated successfully.');
+    }
+
+    // Approve Premium membership manually
+    public function approvePremium(\App\Models\User $user)
+    {
+        $user->update(['is_premium' => true]);
+        
+        // Also create a manual payment record if one doesn't exist
+        \App\Models\Payment::create([
+            'user_id' => $user->id,
+            'plan_name' => 'Gold Plan',
+            'amount' => \App\Models\Setting::get('gold_plan_price', 1000),
+            'currency' => 'INR',
+            'status' => 'completed', // Completed/Approved status
+        ]);
+
+        return back()->with('success', "Membership for {$user->name} has been upgraded to Premium.");
+    }
+
+    // Reject / Revoke Premium membership manually
+    public function rejectPremium(\App\Models\User $user)
+    {
+        $user->update(['is_premium' => false]);
+        
+        // Mark any completed payments for this user as rejected
+        \App\Models\Payment::where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->update(['status' => 'rejected']);
+
+        return back()->with('success', "Premium membership for {$user->name} has been revoked.");
+    }
+
+    // Approve a payment transaction manually
+    public function approvePayment(\App\Models\Payment $payment)
+    {
+        $payment->update(['status' => 'completed']);
+        $payment->user->update(['is_premium' => true]);
+
+        return back()->with('success', "Transaction approved. User {$payment->user->name} has been upgraded to Premium.");
+    }
+
+    // Reject a payment transaction manually
+    public function rejectPayment(\App\Models\Payment $payment)
+    {
+        $payment->update(['status' => 'rejected']);
+        
+        // Revoke premium only if they don't have other active payments
+        $payment->user->update(['is_premium' => false]);
+
+        return back()->with('success', "Transaction rejected. Premium membership for {$payment->user->name} has been revoked.");
+    }
 }
