@@ -18,7 +18,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Kasar Samaj Matrimony</h2>
+            <h2>Kasar Community Matrimony</h2>
         </div>
         <p class="greeting">Hello,</p>
         <p class="message">You requested a One-Time Password (OTP) for your <strong>{{ $type }}</strong> request on our platform.</p>
@@ -26,7 +26,7 @@
             <div class="otp">{{ $otp }}</div>
             <p class="expiry-note">This code is valid for 10-15 minutes. Please do not share this OTP with anyone.</p>
         </div>
-        <p class="message">Thank you,<br>The Kasar Samaj Matrimony Team</p>
+        <p class="message">Thank you,<br>The Kasar Community Matrimony Team</p>
         <div class="footer">
             This is an automated email. Please do not reply directly to this message.
         </div>

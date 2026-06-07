@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasar Samaj Matrimony | Premium Matchmaking</title>
+    <title>Kasar Community Matrimony | Premium Matchmaking</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -730,7 +730,7 @@
             @for($i=1; $i<=3; $i++)
                 @php
                     $title = \App\Models\Setting::get("wcu_title_$i") ?: ($i==1 ? 'Community Specific' : ($i==2 ? 'Privacy Protected' : 'Verified Matches'));
-                    $desc = \App\Models\Setting::get("wcu_desc_$i") ?: ($i==1 ? 'Tailored exclusively for the Kasar Samaj members worldwide.' : ($i==2 ? 'Your data is secure with us. You control who sees your profile.' : 'Every profile goes through a strict manual verification process.'));
+                    $desc = \App\Models\Setting::get("wcu_desc_$i") ?: ($i==1 ? 'Tailored exclusively for the Kasar Community members worldwide.' : ($i==2 ? 'Your data is secure with us. You control who sees your profile.' : 'Every profile goes through a strict manual verification process.'));
                 @endphp
                 <div class="feature-card">
                     <i class="fas {{ $i==1 ? 'fa-users' : ($i==2 ? 'fa-shield-alt' : 'fa-user-check') }}" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem;"></i>

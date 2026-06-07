@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Panel') | Kasar Samaj Matrimony</title>
+    <title>@yield('title', 'Admin Panel') | Kasar Community Matrimony</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -134,7 +134,7 @@
         <a href="{{ route('home') }}" class="logo">
             <img src="/images/logo-icon.png" alt="Logo">
             <div class="logo-text">
-                <span class="brand-name">Kasar Samaj</span>
+                <span class="brand-name">Kasar Community</span>
                 <span class="brand-sub">Matrimony</span>
             </div>
         </a>

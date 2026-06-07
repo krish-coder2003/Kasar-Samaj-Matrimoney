@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }} | Kasar Samaj Matrimony</title>
+    <title>{{ $title }} | Kasar Community Matrimony</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
@@ -85,7 +85,7 @@
             </div>
 
             <div class="chatbot-messages" id="chatbot-messages">
-                <div class="chatbot-msg bot">Greetings! I am the professional support assistant for Kasar Samaj Matrimony. How may I assist you with your queries today?</div>
+                <div class="chatbot-msg bot">Greetings! I am the professional support assistant for Kasar Community Matrimony. How may I assist you with your queries today?</div>
             </div>
             <div id="chatbot-typing" class="chatbot-typing-indicator" style="padding: 0 1rem;">Assistant is composing...</div>
             <div class="chatbot-input">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'People Who Liked You | Kasar Samaj Matrimony')
+@section('title', 'People Who Liked You | Kasar Community Matrimony')
 
 @section('header_class', 'scrolled')
 

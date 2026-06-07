@@ -59,7 +59,7 @@
             
             <div class="form-group">
                 <label>Their Story</label>
-                <textarea name="story" required placeholder="Describe how they met and their experience with Kasar Samaj Matrimony..."></textarea>
+                <textarea name="story" required placeholder="Describe how they met and their experience with Kasar Community Matrimony..."></textarea>
             </div>
             
             <div class="form-group">

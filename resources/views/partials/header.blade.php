@@ -1,8 +1,8 @@
 <header id="main-header" class="{{ (request()->routeIs('home') && !Auth::check()) ? '' : 'scrolled' }}" data-auth="{{ Auth::check() ? 'true' : 'false' }}">
     <a href="{{ route('home') }}" class="logo">
-        <img src="/images/logo-icon.png" alt="Kasar Samaj Logo">
+        <img src="/images/logo-icon.png" alt="Kasar Community Logo">
         <div class="logo-text">
-            <span class="brand-name">Kasar Samaj</span>
+            <span class="brand-name">Kasar Community</span>
             <span class="brand-sub">Matrimony</span>
         </div>
     </a>

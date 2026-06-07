@@ -5,7 +5,7 @@
         <div class="footer-col">
             <h4 style="display: flex; align-items: center; gap: 12px; margin-bottom: 2rem;">
                 <img src="/images/logo-icon.png" alt="Logo" style="height: 45px; width: 45px; border-radius: 50%; border: 2px solid var(--secondary); box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);">
-                Kasar Samaj
+                Kasar Community
             </h4>
             <p>{{ \App\Models\Setting::get('footer_about_text') }}</p>
         </div>
@@ -65,6 +65,6 @@
     </div>
     
     <div class="footer-bottom">
-        <p>&copy; {{ date('Y') }} Kasar Samaj Matrimony. @if($devName) Designed with <i class="fas fa-heart" style="color: var(--primary); font-size: 0.8rem;"></i> for the community. @endif All Rights Reserved.</p>
+        <p>&copy; {{ date('Y') }} Kasar Community Matrimony. @if($devName) Designed with <i class="fas fa-heart" style="color: var(--primary); font-size: 0.8rem;"></i> for the community. @endif All Rights Reserved.</p>
     </div>
 </footer>
