@@ -537,9 +537,11 @@
                                 $mainPhoto = !empty($photos) ? asset('storage/' . $photos[0]) : 'https://ui-avatars.com/api/?name=' . urlencode($match->name) . '&background=800000&color=fff&size=300';
                             @endphp
                             <div class="match-photo" style="background-image: url('{{ $mainPhoto }}');">
+                                @if(!Auth::user()->isAdmin())
                                 <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="window.toggleLike({{ $match->id }}, event)">
                                     <i class="{{ in_array($match->id, $likedUserIds) ? 'fas' : 'far' }} fa-heart"></i>
                                 </div>
+                                @endif
                             </div>
                             <div class="match-info">
                                 <h4>
@@ -585,9 +587,11 @@
                         $mainPhoto = !empty($photos) ? asset('storage/' . $photos[0]) : 'https://ui-avatars.com/api/?name=' . urlencode($match->name) . '&background=800000&color=fff&size=300';
                     @endphp
                     <div class="match-photo" id="main-photo-{{ $match->id }}" style="background-image: url('{{ $mainPhoto }}'); position: relative;">
+                        @if(!Auth::user()->isAdmin())
                         <div class="like-btn {{ in_array($match->id, $likedUserIds) ? 'active' : '' }}" onclick="window.toggleLike({{ $match->id }}, event)" id="like-{{ $match->id }}">
                             <i class="{{ in_array($match->id, $likedUserIds) ? 'fas' : 'far' }} fa-heart"></i>
                         </div>
+                        @endif
                     </div>
                     
                     @if(count($photos) > 1)
@@ -686,9 +690,11 @@
 
                     <div class="btn-floating">
                         <input type="hidden" id="detail-user-id">
+                        @if(!Auth::user() || !Auth::user()->isAdmin())
                         <button id="send-interest-btn" class="btn-premium btn-block" style="padding: 1.2rem;" onclick="window.sendInterest()">
                             <i class="fas fa-paper-plane"></i> Send Interest
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1203,14 +1209,16 @@
             quickStats.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${profile.city || 'N/A'}, ${profile.state || 'N/A'} • <i class="fas fa-graduation-cap"></i> ${profile.education || 'N/A'}`;
 
             const sendBtn = document.getElementById('send-interest-btn');
-            if (alreadySent) {
-                sendBtn.innerHTML = '<i class="fas fa-check-circle"></i> Interest Sent';
-                sendBtn.disabled = true;
-                sendBtn.style.opacity = '0.7';
-            } else {
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Interest';
-                sendBtn.disabled = false;
-                sendBtn.style.opacity = '1';
+            if (sendBtn) {
+                if (alreadySent) {
+                    sendBtn.innerHTML = '<i class="fas fa-check-circle"></i> Interest Sent';
+                    sendBtn.disabled = true;
+                    sendBtn.style.opacity = '0.7';
+                } else {
+                    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Interest';
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }
             }
 
             const mainPhotoDiv = document.getElementById('detail-main-photo');
@@ -1283,6 +1291,7 @@
         window.sendInterest = async function() {
             const receiverId = document.getElementById('detail-user-id').value;
             const btn = document.getElementById('send-interest-btn');
+            if (!btn) return;
             btn.innerText = 'Sending...'; btn.disabled = true;
             try {
                 const response = await fetch("/send-interest", {
@@ -1313,9 +1322,11 @@
             }).then(r => r.json()).then(data => {
                 if (data.success) {
                     const btn = document.getElementById(`like-${userId}`);
-                    const icon = btn.querySelector('i');
-                    if (data.liked) { btn.classList.add('active'); icon.classList.replace('far', 'fas'); }
-                    else { btn.classList.remove('active'); icon.classList.replace('fas', 'far'); }
+                    if (btn) {
+                        const icon = btn.querySelector('i');
+                        if (data.liked) { btn.classList.add('active'); icon.classList.replace('far', 'fas'); }
+                        else { btn.classList.remove('active'); icon.classList.replace('fas', 'far'); }
+                    }
                     window.showNotification(data.message, 'success');
                 } else {
                     window.showNotification(data.message, 'error');

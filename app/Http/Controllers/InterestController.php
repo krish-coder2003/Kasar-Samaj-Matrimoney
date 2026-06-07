@@ -40,6 +40,13 @@ class InterestController extends Controller
 
     public function send(Request $request)
     {
+        if (Auth::user()->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Administrators cannot send interest.'
+            ]);
+        }
+
         $request->validate([
             'receiver_id' => 'required|exists:users,id'
         ]);

@@ -13,6 +13,13 @@ class ProfileInteractionController extends Controller
     {
         $currentUser = Auth::user();
 
+        if ($currentUser->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Administrators cannot like profiles.'
+            ]);
+        }
+
         if (!$currentUser->is_premium) {
             return response()->json([
                 'success' => false, 

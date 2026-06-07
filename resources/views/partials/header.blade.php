@@ -57,6 +57,12 @@
                 </div>
             </div>
 
+            @if(Auth::user()->isAdmin())
+                <a href="{{ route('admin.dashboard') }}" class="btn-premium-nav" style="margin-right: 0.8rem;">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            @endif
+
             <a href="{{ route('profile.edit') }}" class="btn-premium-nav {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
                 <i class="fas fa-user"></i> My Profile
             </a>
@@ -147,6 +153,8 @@
 <script>
     document.addEventListener('turbo:load', function() {
         const bell = document.getElementById('notification-bell');
+        if (!bell) return;
+
         const dropdown = document.getElementById('notification-dropdown');
         const unreadBadge = document.getElementById('unread-count');
         const notifList = document.getElementById('notif-list');
@@ -217,4 +225,62 @@
         setInterval(fetchNotifications, 30000); // Every 30s
     });
 </script>
+@endauth
+
+@auth
+    @if(Auth::user()->isAdmin())
+        <div class="admin-floating-badge">
+            <a href="{{ route('admin.dashboard') }}" class="btn-admin-floating">
+                <i class="fas fa-arrow-left"></i> Admin Dashboard
+            </a>
+        </div>
+        <style>
+            .admin-floating-badge {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                z-index: 9999;
+            }
+            .btn-admin-floating {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                background: linear-gradient(135deg, #800000 0%, #b30000 100%);
+                color: white !important;
+                text-decoration: none !important;
+                padding: 1rem 1.8rem;
+                border-radius: 50px;
+                font-family: 'Outfit', sans-serif;
+                font-weight: 700;
+                font-size: 1rem;
+                box-shadow: 0 10px 25px rgba(128, 0, 0, 0.4);
+                border: 2px solid #D4AF37;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                cursor: pointer;
+            }
+            .btn-admin-floating:hover {
+                transform: translateY(-5px) scale(1.05);
+                box-shadow: 0 15px 30px rgba(128, 0, 0, 0.5);
+                background: linear-gradient(135deg, #a00000 0%, #d60000 100%);
+                color: #D4AF37 !important;
+            }
+            .btn-admin-floating i {
+                font-size: 1.1rem;
+                transition: transform 0.3s ease;
+            }
+            .btn-admin-floating:hover i {
+                transform: translateX(-4px);
+            }
+            @media (max-width: 768px) {
+                .admin-floating-badge {
+                    bottom: 20px;
+                    left: 20px;
+                }
+                .btn-admin-floating {
+                    padding: 0.8rem 1.4rem;
+                    font-size: 0.9rem;
+                }
+            }
+        </style>
+    @endif
 @endauth
