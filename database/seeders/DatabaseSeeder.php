@@ -16,20 +16,24 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Admin User
-        $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@gmail.com',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-            'is_premium' => true,
-        ]);
-        $admin->profile()->create([
-            'gender' => 'Male',
-            'dob' => '1990-01-01',
-            'city' => 'Nanded',
-            'occupation' => 'Admin',
-            'phone_number' => '1234567890',
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'shrangarekrishna14@gmail.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('Krishna@248653'),
+                'role' => 'admin',
+                'is_premium' => true,
+            ]
+        );
+        if (!$admin->profile) {
+            $admin->profile()->create([
+                'gender' => 'Male',
+                'dob' => '1990-01-01',
+                'city' => 'Nanded',
+                'occupation' => 'Admin',
+                'phone_number' => '1234567890',
+            ]);
+        }
 
         // 2. Krishna (Test User)
         $krish = User::create([
