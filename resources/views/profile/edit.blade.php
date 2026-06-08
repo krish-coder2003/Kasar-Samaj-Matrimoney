@@ -144,8 +144,38 @@
                             @error('marital_status') <span style="color: #dc3545; font-size: 0.8rem;">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
-                            <label for="height">Height (e.g. 5'7")</label>
-                            <input type="text" name="height" value="{{ old('height', $profile->height) }}" required>
+                            <label for="height">Height</label>
+                            <select name="height" required>
+                                <option value="">Select Height</option>
+                                @for ($feet = 4; $feet <= 7; $feet++)
+                                    @php $maxInches = ($feet == 7) ? 0 : 11; @endphp
+                                    @for ($inches = 0; $inches <= $maxInches; $inches++)
+                                        @php
+                                            $val = "{$feet}'{$inches}";
+                                            $totalInches = ($feet * 12) + $inches;
+                                            $label = "{$feet}'{$inches}\" ({$totalInches} in)";
+                                            
+                                            $currentHeight = old('height', $profile->height);
+                                            $isSelected = false;
+                                            if ($currentHeight) {
+                                                preg_match_all('/\d+/', $currentHeight, $matches);
+                                                if (count($matches[0]) >= 2) {
+                                                    $isSelected = ($matches[0][0] == $feet && $matches[0][1] == $inches);
+                                                } else if (count($matches[0]) == 1) {
+                                                    if (str_contains($currentHeight, 'ft') || str_contains($currentHeight, "'")) {
+                                                        $isSelected = ($matches[0][0] == $feet && $inches == 0);
+                                                    } else {
+                                                        $isSelected = ($matches[0][0] == $totalInches);
+                                                    }
+                                                }
+                                            }
+                                        @endphp
+                                        <option value="{{ $val }}" {{ $isSelected ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endfor
+                                @endfor
+                            </select>
                             @error('height') <span style="color: #dc3545; font-size: 0.8rem;">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">

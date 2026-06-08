@@ -39,6 +39,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function getNameAttribute($value)
+    {
+        return ucwords(strtolower($value));
+    }
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = ucwords(strtolower(trim($value)));
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
