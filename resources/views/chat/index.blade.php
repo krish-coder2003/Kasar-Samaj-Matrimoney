@@ -194,12 +194,18 @@
             }
             .chat-sidebar {
                 width: 100%;
-                display: {{ $activeChatUser ? 'none' : 'flex' }};
+                display: flex;
                 border-right: none;
             }
             .chat-window {
                 width: 100%;
-                display: {{ $activeChatUser ? 'flex' : 'none' }};
+                display: none;
+            }
+            .chat-container.has-active-chat .chat-sidebar {
+                display: none;
+            }
+            .chat-container.has-active-chat .chat-window {
+                display: flex;
             }
             .mobile-back {
                 display: flex !important;
@@ -219,7 +225,7 @@
     @include('partials.recovery-banner')
     @include('partials.header')
 
-    <div class="chat-container">
+    <div class="chat-container {{ $activeChatUser ? 'has-active-chat' : '' }}">
         <!-- Sidebar -->
         <div class="chat-sidebar">
             <div class="sidebar-header">
