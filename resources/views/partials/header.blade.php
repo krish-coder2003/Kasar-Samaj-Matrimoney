@@ -91,7 +91,10 @@
     });
 
     // Unified Mobile Menu Logic
-    document.addEventListener('turbo:load', function() {
+    function initMobileMenu() {
+        if (document.body.dataset.menuInitialized) return;
+        document.body.dataset.menuInitialized = 'true';
+
         const mobileMenu = document.getElementById('mobile-menu');
         const closeMenu = document.getElementById('close-menu');
         const navLinks = document.querySelector('.nav-links');
@@ -107,7 +110,13 @@
                 navLinks.classList.remove('active');
             });
         }
-    });
+    }
+
+    document.addEventListener('turbo:load', initMobileMenu);
+    document.addEventListener('DOMContentLoaded', initMobileMenu);
+    if (document.readyState !== 'loading') {
+        initMobileMenu();
+    }
 </script>
 
 <style>
@@ -151,7 +160,10 @@
 
 @auth
 <script>
-    document.addEventListener('turbo:load', function() {
+    function initNotifications() {
+        if (document.body.dataset.notifInitialized) return;
+        document.body.dataset.notifInitialized = 'true';
+
         const bell = document.getElementById('notification-bell');
         if (!bell) return;
 
@@ -222,8 +234,15 @@
         dropdown.addEventListener('click', (e) => e.stopPropagation());
 
         fetchNotifications();
-        setInterval(fetchNotifications, 30000); // Every 30s
-    });
+        if (window.notifInterval) clearInterval(window.notifInterval);
+        window.notifInterval = setInterval(fetchNotifications, 30000); // Every 30s
+    }
+
+    document.addEventListener('turbo:load', initNotifications);
+    document.addEventListener('DOMContentLoaded', initNotifications);
+    if (document.readyState !== 'loading') {
+        initNotifications();
+    }
 </script>
 @endauth
 

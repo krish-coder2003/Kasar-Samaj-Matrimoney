@@ -14,7 +14,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
 
     <style>
-        body { background: #fdfaf5 !important; overflow: hidden; }
+        html.chat-page-active, body.chat-page-active {
+            background: #fdfaf5 !important;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
         .chat-container {
             position: fixed;
             top: 80px;
@@ -99,7 +106,7 @@
             background: #fff;
         }
         .chat-header {
-            padding: 1.5rem 2rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid #eee;
             display: flex;
             align-items: center;
@@ -107,17 +114,17 @@
         }
         .messages-area {
             flex-grow: 1;
-            padding: 2rem;
+            padding: 1.25rem 1.5rem;
             overflow-y: auto;
             background: #fdfaf5;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.75rem;
         }
         .message {
-            max-width: 70%;
-            padding: 1rem 1.5rem;
-            border-radius: 20px;
+            max-width: 75%;
+            padding: 0.75rem 1.25rem;
+            border-radius: 18px;
             font-size: 0.95rem;
             position: relative;
             animation: fadeIn 0.3s ease;
@@ -156,7 +163,7 @@
             color: inherit;
         }
         .chat-input-area {
-            padding: 1.5rem 2rem;
+            padding: 1rem 1.5rem;
             background: white;
             border-top: 1px solid #eee;
             display: flex;
@@ -165,7 +172,7 @@
         }
         .chat-input {
             flex-grow: 1;
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             border: 1px solid #eee;
             border-radius: 30px;
             background: #f9f9f9;
@@ -185,9 +192,7 @@
         /* Mobile Responsiveness */
         @media (max-width: 992px) {
             .chat-container {
-                top: 70px;
-                height: calc(100vh - 70px);
-                position: fixed;
+                position: absolute;
                 top: 70px;
                 left: 0; right: 0; bottom: 0;
                 height: calc(100dvh - 70px);
@@ -217,6 +222,29 @@
                 color: var(--primary);
                 text-decoration: none;
                 margin-right: 1rem;
+            }
+            .chat-header {
+                padding: 0.75rem 1rem;
+            }
+            .messages-area {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+            .message {
+                max-width: 85%;
+                padding: 0.5rem 0.85rem;
+                border-radius: 15px;
+                font-size: 0.9rem;
+            }
+            .chat-input-area {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+            .chat-input {
+                padding: 0.6rem 1rem;
+            }
+            .send-btn {
+                padding: 0.6rem 1.25rem !important;
             }
         }
     </style>
@@ -337,6 +365,10 @@
         };
 
         (function() {
+            // Add active classes to lock layout viewport scrolling for this page only
+            document.documentElement.classList.add('chat-page-active');
+            document.body.classList.add('chat-page-active');
+
             const state = window.chatAppState;
             state.activeUserId = {{ $activeChatUser ? $activeChatUser->id : 'null' }};
             
@@ -543,16 +575,38 @@
                     const container = document.querySelector('.chat-container');
                     if (window.innerWidth <= 992 && container) {
                         const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.8;
-                        container.style.top = isKeyboardOpen ? '0px' : '70px';
-                        container.style.height = `${window.visualViewport.height - (isKeyboardOpen ? 0 : 70)}px`;
+                        
+                        container.style.position = 'absolute';
+                        if (isKeyboardOpen) {
+                            container.style.top = `${window.visualViewport.offsetTop}px`;
+                            container.style.height = `${window.visualViewport.height}px`;
+                        } else {
+                            container.style.top = `${70 + window.visualViewport.offsetTop}px`;
+                            container.style.height = `${window.visualViewport.height - 70}px`;
+                        }
                         if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
+                    } else if (container) {
+                        container.style.position = '';
+                        container.style.top = '';
+                        container.style.height = '';
                     }
                 };
                 window.visualViewport.addEventListener('resize', handleResize);
+                window.visualViewport.addEventListener('scroll', handleResize);
+
+                // Prevent layout viewport scroll/panning on mobile input focus
+                window.addEventListener('scroll', () => {
+                    if (window.innerWidth <= 992 && window.scrollY !== 0) {
+                        window.scrollTo(0, 0);
+                    }
+                });
             }
 
             // Turbo cache cleanup
             document.addEventListener('turbo:before-cache', () => {
+                // Restore layout viewport scrolling behavior for other pages
+                document.documentElement.classList.remove('chat-page-active');
+                document.body.classList.remove('chat-page-active');
                 // Remove optimistic messages or temporary states before caching
                 document.querySelectorAll('.message[data-msg-id^="temp_"]').forEach(el => el.remove());
             }, { once: true });
