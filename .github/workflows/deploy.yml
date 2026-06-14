@@ -90,8 +90,8 @@ jobs:
         ARGS: "-rlgoDzvc -i --delete"
         SOURCE: "/"
         REMOTE_HOST: ${{ secrets.SSH_HOST }}
-        USER: ${{ secrets.SSH_USER }}
-        PORT: ${{ secrets.SSH_PORT || 65002 }}
+        REMOTE_USER: ${{ secrets.SSH_USER }}
+        REMOTE_PORT: ${{ secrets.SSH_PORT || 65002 }}
         TARGET: "domains/${{ secrets.DOMAIN_NAME }}/public_html"
         EXCLUDE: "/node_modules/, /.git/, /.github/, /tests/, .env"
 
