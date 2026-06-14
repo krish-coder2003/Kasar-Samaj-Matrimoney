@@ -17,6 +17,7 @@
         html.chat-page-active, body.chat-page-active {
             background: #fdfaf5 !important;
             overflow: hidden;
+            overscroll-behavior: none;
             height: 100%;
             width: 100%;
             margin: 0;
@@ -48,6 +49,8 @@
         .contact-list {
             flex-grow: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
         }
         .contact-item {
             display: flex;
@@ -116,6 +119,8 @@
             flex-grow: 1;
             padding: 1.25rem 1.5rem;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
             background: #fdfaf5;
             display: flex;
             flex-direction: column;
@@ -576,13 +581,14 @@
                     if (window.innerWidth <= 992 && container) {
                         const isKeyboardOpen = window.visualViewport.height < window.innerHeight * 0.8;
                         
-                        container.style.position = 'absolute';
                         if (isKeyboardOpen) {
+                            container.style.position = 'absolute';
                             container.style.top = `${window.visualViewport.offsetTop}px`;
                             container.style.height = `${window.visualViewport.height}px`;
                         } else {
-                            container.style.top = `${70 + window.visualViewport.offsetTop}px`;
-                            container.style.height = `${window.visualViewport.height - 70}px`;
+                            container.style.position = '';
+                            container.style.top = '';
+                            container.style.height = '';
                         }
                         if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
                     } else if (container) {
@@ -595,11 +601,14 @@
                 window.visualViewport.addEventListener('scroll', handleResize);
 
                 // Prevent layout viewport scroll/panning on mobile input focus
-                window.addEventListener('scroll', () => {
-                    if (window.innerWidth <= 992 && window.scrollY !== 0) {
-                        window.scrollTo(0, 0);
-                    }
-                });
+                if (chatInput) {
+                    chatInput.addEventListener('focus', () => {
+                        setTimeout(() => {
+                            window.scrollTo(0, 0);
+                            document.body.scrollTop = 0;
+                        }, 100);
+                    });
+                }
             }
 
             // Turbo cache cleanup
