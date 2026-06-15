@@ -79,4 +79,19 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Vite Environment Fallbacks (for config:cache support)
+    |--------------------------------------------------------------------------
+    */
+    'vite' => [
+        'broadcaster' => env('VITE_BROADCASTER', 'reverb'),
+        'pusher_key' => env('VITE_PUSHER_APP_KEY'),
+        'pusher_cluster' => env('VITE_PUSHER_APP_CLUSTER', 'mt1'),
+        'reverb_key' => env('VITE_REVERB_APP_KEY'),
+        'reverb_host' => env('VITE_REVERB_HOST'),
+        'reverb_port' => env('VITE_REVERB_PORT', '8080'),
+        'reverb_scheme' => env('VITE_REVERB_SCHEME', 'http'),
+    ],
+
 ];

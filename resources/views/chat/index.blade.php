@@ -9,13 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
-        window.laravelBroadcaster = "{{ env('VITE_BROADCASTER', 'reverb') }}";
-        window.laravelPusherKey = "{{ env('VITE_PUSHER_APP_KEY') }}";
-        window.laravelPusherCluster = "{{ env('VITE_PUSHER_APP_CLUSTER', 'mt1') }}";
-        window.laravelReverbKey = "{{ env('VITE_REVERB_APP_KEY') }}";
-        window.laravelReverbHost = "{{ env('VITE_REVERB_HOST') }}";
-        window.laravelReverbPort = "{{ env('VITE_REVERB_PORT', '8080') }}";
-        window.laravelReverbScheme = "{{ env('VITE_REVERB_SCHEME', 'http') }}";
+        window.laravelBroadcaster = "{{ config('broadcasting.vite.broadcaster', 'reverb') }}";
+        window.laravelPusherKey = "{{ config('broadcasting.vite.pusher_key') }}";
+        window.laravelPusherCluster = "{{ config('broadcasting.vite.pusher_cluster', 'mt1') }}";
+        window.laravelReverbKey = "{{ config('broadcasting.vite.reverb_key') }}";
+        window.laravelReverbHost = "{{ config('broadcasting.vite.reverb_host') }}";
+        window.laravelReverbPort = "{{ config('broadcasting.vite.reverb_port', '8080') }}";
+        window.laravelReverbScheme = "{{ config('broadcasting.vite.reverb_scheme', 'http') }}";
     </script>
     @vite(['resources/js/app.js'])
     
