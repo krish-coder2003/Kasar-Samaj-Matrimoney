@@ -348,37 +348,39 @@
     @include('partials.footer')
 
     <script>
-        // Limit Describe Words to 3
-        const wordCheckboxes = document.querySelectorAll('input[name="describe_words[]"]');
-        wordCheckboxes.forEach(cb => {
-            cb.addEventListener('change', () => {
-                const checkedCount = document.querySelectorAll('input[name="describe_words[]"]:checked').length;
-                if (checkedCount > 3) {
-                    cb.checked = false;
-                    // Custom aesthetic alert
-                    const toast = document.createElement('div');
-                    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc3545; color: white; padding: 1rem 2rem; border-radius: 12px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.1); animation: slideIn 0.3s forwards;';
-                    toast.innerText = 'Please select up to 3 words only.';
-                    document.body.appendChild(toast);
-                    setTimeout(() => {
-                        toast.style.opacity = '0';
-                        toast.style.transition = '0.5s';
-                        setTimeout(() => toast.remove(), 500);
-                    }, 3000);
-                }
+        (function() {
+            // Limit Describe Words to 3
+            const wordCheckboxes = document.querySelectorAll('input[name="describe_words[]"]');
+            wordCheckboxes.forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const checkedCount = document.querySelectorAll('input[name="describe_words[]"]:checked').length;
+                    if (checkedCount > 3) {
+                        cb.checked = false;
+                        // Custom aesthetic alert
+                        const toast = document.createElement('div');
+                        toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #dc3545; color: white; padding: 1rem 2rem; border-radius: 12px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.1); animation: slideIn 0.3s forwards;';
+                        toast.innerText = 'Please select up to 3 words only.';
+                        document.body.appendChild(toast);
+                        setTimeout(() => {
+                            toast.style.opacity = '0';
+                            toast.style.transition = '0.5s';
+                            setTimeout(() => toast.remove(), 500);
+                        }, 3000);
+                    }
+                });
             });
-        });
 
-        // Mobile Menu Toggle
-        const mobileMenu = document.getElementById('mobile-menu');
-        const closeMenu = document.getElementById('close-menu');
-        const navLinks = document.querySelector('.nav-links');
+            // Mobile Menu Toggle
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMenu = document.getElementById('close-menu');
+            const navLinks = document.querySelector('.nav-links');
 
-        mobileMenu?.addEventListener('click', () => navLinks.classList.add('active'));
-        closeMenu?.addEventListener('click', () => navLinks.classList.remove('active'));
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => navLinks.classList.remove('active'));
-        });
+            mobileMenu?.addEventListener('click', () => navLinks.classList.add('active'));
+            closeMenu?.addEventListener('click', () => navLinks.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => navLinks.classList.remove('active'));
+            });
+        })();
     </script>
     <style>
         @keyframes slideIn {
