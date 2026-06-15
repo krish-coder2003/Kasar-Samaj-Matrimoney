@@ -106,3 +106,37 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/verifications/{profile}/approve', [\App\Http\Controllers\AdminController::class, 'approveVerification'])->name('verifications.approve');
     Route::post('/verifications/{profile}/reject', [\App\Http\Controllers\AdminController::class, 'rejectVerification'])->name('verifications.reject');
 });
+
+Route::get('/fix-storage-link', function () {
+    try {
+        $storageLinkPath = public_path('storage');
+
+        // Check if the link or directory exists
+        if (file_exists($storageLinkPath) || is_link($storageLinkPath)) {
+            // Delete symbolic link or junction
+            if (PHP_OS_FAMILY === 'Windows') {
+                if (is_dir($storageLinkPath)) {
+                    rmdir($storageLinkPath);
+                } else {
+                    unlink($storageLinkPath);
+                }
+            } else {
+                unlink($storageLinkPath);
+            }
+        }
+
+        // Run the storage:link artisan command
+        Illuminate\Support\Facades\Artisan::call('storage:link');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Storage symbolic link recreated successfully on Hostinger!'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
