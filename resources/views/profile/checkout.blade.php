@@ -188,21 +188,39 @@
     @include('partials.footer')
 
     <!-- Razorpay Checkout JS -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         (function() {
             var initialized = false;
             var rzp = null;
             var rzpError = null;
 
+            function loadRazorpay(callback) {
+                if (typeof Razorpay !== 'undefined') {
+                    callback();
+                    return;
+                }
+                var script = document.createElement('script');
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.async = true;
+                script.onload = function() {
+                    callback();
+                };
+                script.onerror = function() {
+                    rzpError = "Razorpay SDK failed to load. Please check your internet connection.";
+                    showErrorState();
+                };
+                document.head.appendChild(script);
+            }
+
             function initCheckout() {
                 if (initialized) return;
                 initialized = true;
 
-                try {
-                    if (typeof Razorpay === 'undefined') {
-                        throw new Error("Razorpay payment SDK failed to load. Please check your internet connection.");
-                    }
+                loadRazorpay(function() {
+                    try {
+                        if (typeof Razorpay === 'undefined') {
+                            throw new Error("Razorpay payment SDK failed to load. Please check your internet connection.");
+                        }
 
                     var options = {
                         "key": "{{ $keyId }}",
@@ -281,7 +299,8 @@
                     if (loader) loader.style.display = 'none';
                     if (payBox) payBox.style.display = 'block';
                 }, 1200);
-            }
+            });
+        }
 
             function showErrorState() {
                 var loader = document.getElementById('loading-box');
