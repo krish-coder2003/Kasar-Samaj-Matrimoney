@@ -140,3 +140,17 @@ Route::get('/fix-storage-link', function () {
     }
 });
 
+// Storage fallback route for shared hosting environments where symlink is disabled
+Route::get('/storage/{path}', function ($path) {
+    // Prevent directory traversal attacks
+    $path = str_replace(['../', '..\\'], '', $path);
+    $filePath = storage_path('app/public/' . $path);
+
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+
+    return response()->file($filePath);
+})->where('path', '.*');
+
+

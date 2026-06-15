@@ -1,11 +1,4 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-
-    # Serve storage files directly without requiring a symbolic link
-    RewriteRule ^storage/(?!app/public/)(.*)$ storage/app/public/$1 [L]
-
-    # Redirect all other traffic to the public/ folder
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteCond %{REQUEST_URI} !^/storage/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
