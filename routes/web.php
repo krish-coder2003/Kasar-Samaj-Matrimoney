@@ -110,19 +110,37 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::get('/fix-storage-link', function () {
     try {
         $storageLinkPath = public_path('storage');
+        $mode = request()->query('mode', 'link'); // 'link' or 'delete'
 
         // Check if the link or directory exists
         if (file_exists($storageLinkPath) || is_link($storageLinkPath)) {
-            // Delete symbolic link or junction
-            if (PHP_OS_FAMILY === 'Windows') {
-                if (is_dir($storageLinkPath)) {
-                    rmdir($storageLinkPath);
+            // Safely rename link or directory first to prevent data loss and resolve locked files
+            $backupPath = $storageLinkPath . '_backup_' . time();
+            if (!@rename($storageLinkPath, $backupPath)) {
+                // If rename fails, try direct deletion
+                if (PHP_OS_FAMILY === 'Windows') {
+                    if (is_dir($storageLinkPath)) {
+                        rmdir($storageLinkPath);
+                    } else {
+                        unlink($storageLinkPath);
+                    }
                 } else {
-                    unlink($storageLinkPath);
+                    if (is_link($storageLinkPath)) {
+                        unlink($storageLinkPath);
+                    } else if (is_dir($storageLinkPath)) {
+                        rmdir($storageLinkPath);
+                    } else {
+                        unlink($storageLinkPath);
+                    }
                 }
-            } else {
-                unlink($storageLinkPath);
             }
+        }
+
+        if ($mode === 'delete') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Storage link/directory removed successfully. Fallback routing will now handle storage requests.'
+            ]);
         }
 
         // Run the storage:link artisan command
