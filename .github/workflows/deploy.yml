@@ -96,12 +96,12 @@ jobs:
       with:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         ARGS: "-rlgoDzvc -i --delete"
-        SOURCE: "/"
+        SOURCE: ""
         REMOTE_HOST: ${{ secrets.SSH_HOST }}
         REMOTE_USER: ${{ secrets.SSH_USER }}
         REMOTE_PORT: ${{ secrets.SSH_PORT || 65002 }}
         TARGET: "domains/${{ secrets.DOMAIN_NAME }}/public_html"
-        EXCLUDE: "/node_modules/, /.git/, /.github/, /tests/, .env"
+        EXCLUDE: "/node_modules/, /.git/, /.github/, /tests/, .env, /storage/, /public/storage/"
 
     - name: Run post-deployment commands via SSH
       uses: appleboy/ssh-action@v1.0.3
@@ -113,6 +113,7 @@ jobs:
         script: |
           cd domains/${{ secrets.DOMAIN_NAME }}/public_html
           php artisan migrate --force
+          php artisan storage:link
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache

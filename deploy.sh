@@ -25,9 +25,17 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Install node modules and compile assets
-npm install
-npm run build
+# Install node modules and compile assets if npm is installed
+if command -v npm &> /dev/null; then
+    echo "Node.js/NPM found. Compiling assets..."
+    npm install
+    npm run build
+else
+    echo "NPM not found. Skipping asset compilation (ensure assets are pre-built or deployed)."
+fi
+
+# Ensure storage link is created
+php artisan storage:link || true
 
 # Exit maintenance mode
 php artisan up
