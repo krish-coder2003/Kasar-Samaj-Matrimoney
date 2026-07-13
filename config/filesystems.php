@@ -39,9 +39,14 @@ return [
         ],
 
         'public' => [
-            'driver' => 'local',
+            'driver' => env('FILESYSTEM_DISK', 'local') === 'cloudinary' ? 'cloudinary' : 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => env('FILESYSTEM_DISK', 'local') === 'cloudinary' 
+                ? env('CLOUDINARY_URL') 
+                : rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'cloud' => env('CLOUDINARY_CLOUD_NAME'),
+            'key' => env('CLOUDINARY_API_KEY'),
+            'secret' => env('CLOUDINARY_API_SECRET'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

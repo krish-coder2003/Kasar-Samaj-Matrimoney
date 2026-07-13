@@ -1,5 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/public/$1 -f
     RewriteRule ^storage/(.*)$ storage/app/public/$1 [END]
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
