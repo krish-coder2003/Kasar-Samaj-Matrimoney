@@ -35,7 +35,8 @@ else
 fi
 
 # Ensure storage link is created
-php artisan storage:link || true
+rm -rf public/storage
+php artisan storage:link --relative || true
 
 # Exit maintenance mode
 php artisan up
